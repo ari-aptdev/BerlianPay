@@ -16,7 +16,7 @@ class House extends Model
         'house_number',
         'owner_name',
         'phone',
-        'type',
+        'nik',
         'is_active',
     ];
 
@@ -45,16 +45,5 @@ class House extends Model
     public function fullLabel(): string
     {
         return "Blok {$this->block}-{$this->house_number}";
-    }
-
-    /**
-     * Ambil tarif IPL yang berlaku untuk tipe rumah ini pada tanggal tertentu.
-     */
-    public function currentRate(?string $onDate = null): ?IplRate
-    {
-        return IplRate::where('house_type', $this->type)
-            ->where('effective_date', '<=', $onDate ?? now()->toDateString())
-            ->orderByDesc('effective_date')
-            ->first();
     }
 }

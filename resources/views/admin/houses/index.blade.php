@@ -20,7 +20,7 @@
                 <th class="text-left px-4 py-2 font-normal">Blok/No.</th>
                 <th class="text-left px-4 py-2 font-normal">Nama pemilik</th>
                 <th class="text-left px-4 py-2 font-normal">Kontak</th>
-                <th class="text-left px-4 py-2 font-normal">Tipe</th>
+                <th class="text-left px-4 py-2 font-normal">NIK</th>
                 <th class="text-left px-4 py-2 font-normal">Status</th>
                 <th class="text-right px-4 py-2 font-normal">Aksi</th>
             </tr>
@@ -31,7 +31,7 @@
                     <td class="px-4 py-2.5">{{ $house->fullLabel() }}</td>
                     <td class="px-4 py-2.5">{{ $house->owner_name }}</td>
                     <td class="px-4 py-2.5">{{ $house->phone ?? '-' }}</td>
-                    <td class="px-4 py-2.5">{{ $house->type }}</td>
+                    <td class="px-4 py-2.5">{{ $house->nik }}</td>
                     <td class="px-4 py-2.5">
                         @if ($house->is_active)
                             <span class="bg-green-50 text-green-700 text-xs px-2.5 py-1 rounded-md">Aktif</span>

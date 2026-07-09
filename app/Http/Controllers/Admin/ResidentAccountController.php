@@ -36,17 +36,22 @@ class ResidentAccountController extends Controller
 
     public function store(StoreResidentAccountRequest $request)
     {
+        $username = User::generateUsername($request->name, $request->nik);
+
         $resident = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
+            'nik' => $request->nik,
+            'username' => $username,
             'password' => Hash::make($request->password),
             'role' => 'warga',
         ]);
 
         $resident->houses()->sync($request->house_ids);
 
-        return redirect()->route('admin.residents.index')->with('success', 'Akun warga berhasil dibuat.');
+        return redirect()->route('admin.residents.index')
+            ->with('success', "Akun warga berhasil dibuat. Username login: {$username}");
     }
 
     /**

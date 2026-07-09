@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('password');
             $table->enum('role', ['admin', 'warga'])->default('warga');
             $table->string('phone')->nullable();
+            $table->string('username')->nullable()->unique()->comment('Login khusus warga: kombinasi nama + 3 digit akhir NIK');
+            $table->string('nik', 16)->nullable()->unique();
             $table->boolean('is_active')->default(true);
             $table->boolean('reminder_email_enabled')->default(true);
             $table->boolean('reminder_wa_enabled')->default(false);

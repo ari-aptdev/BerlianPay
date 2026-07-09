@@ -15,9 +15,11 @@ class PaymentSeeder extends Seeder
         $admin = User::where('role', 'admin')->first();
         $houses = House::all();
 
+        // Nominal contoh, cycling per rumah (tidak lagi terikat ke tipe rumah)
+        $sampleAmounts = [150000, 200000, 250000];
+
         foreach ($houses as $index => $house) {
-            $rate = $house->currentRate() ?? null;
-            $amount = $rate?->nominal ?? 150000;
+            $amount = $sampleAmounts[$index % count($sampleAmounts)];
 
             // 3 bulan ke belakang: Mei, Juni, Juli 2026 (disesuaikan dengan waktu seeding)
             foreach (range(2, 0) as $i) {

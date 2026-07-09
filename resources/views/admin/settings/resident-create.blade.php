@@ -13,10 +13,17 @@
             @error('name') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
         </div>
 
+        <div class="mb-4">
+            <label class="block text-sm text-slate-600 mb-1.5">NIK (16 digit)</label>
+            <input type="text" name="nik" value="{{ old('nik') }}" maxlength="16" inputmode="numeric" required class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm">
+            @error('nik') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+            <p class="text-xs text-slate-400 mt-1">Username login otomatis dibuat dari nama depan + 3 digit terakhir NIK, misal "joko001".</p>
+        </div>
+
         <div class="grid grid-cols-2 gap-4 mb-4">
             <div>
-                <label class="block text-sm text-slate-600 mb-1.5">Email (untuk login)</label>
-                <input type="email" name="email" value="{{ old('email') }}" required class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm">
+                <label class="block text-sm text-slate-600 mb-1.5">Email (opsional, untuk reminder)</label>
+                <input type="email" name="email" value="{{ old('email') }}" class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm">
                 @error('email') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
             </div>
             <div>

@@ -26,7 +26,7 @@ class StoreHouseRequest extends FormRequest
             ],
             'owner_name' => ['required', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:20'],
-            'type' => ['required', 'string', 'max:50'],
+            'nik' => ['required', 'digits:16', Rule::unique('houses')->ignore($houseId)],
             'is_active' => ['boolean'],
         ];
     }

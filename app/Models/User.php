@@ -18,6 +18,8 @@ class User extends Authenticatable
         'password',
         'role',
         'phone',
+        'username',
+        'nik',
         'is_active',
         'reminder_email_enabled',
         'reminder_wa_enabled',
@@ -61,5 +63,26 @@ class User extends Authenticatable
     public function ownsHouse(House $house): bool
     {
         return $this->houses()->where('houses.id', $house->id)->exists();
+    }
+
+    /**
+     * Generate username login warga: nama depan (lowercase) + 3 digit akhir NIK.
+     * Contoh: "Joko Samudra" + NIK "3171030905980001" -> "joko001"
+     * Kalau sudah ada yang sama persis, ditambahkan angka urut di belakang.
+     */
+    public static function generateUsername(string $name, string $nik): string
+    {
+        $firstName = strtolower(preg_replace('/[^a-zA-Z]/', '', strtok(trim($name), ' ')));
+        $last3 = substr($nik, -3);
+        $username = $firstName.$last3;
+
+        $original = $username;
+        $counter = 1;
+        while (static::where('username', $username)->exists()) {
+            $username = $original.$counter;
+            $counter++;
+        }
+
+        return $username;
     }
 }

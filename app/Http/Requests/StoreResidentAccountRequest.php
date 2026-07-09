@@ -15,7 +15,8 @@ class StoreResidentAccountRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'nik' => ['required', 'digits:16', 'unique:users,nik'],
+            'email' => ['nullable', 'email', 'max:255', 'unique:users,email'],
             'phone' => ['nullable', 'string', 'max:20'],
             'password' => ['required', 'string', 'min:8'],
             'house_ids' => ['required', 'array', 'min:1'],

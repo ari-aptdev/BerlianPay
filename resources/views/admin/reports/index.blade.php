@@ -21,7 +21,7 @@
         <i class="ti ti-file-type-pdf"></i> Export PDF
     </a>
     <a href="{{ route('admin.reports.export-excel', ['month' => $month, 'year' => $year]) }}" class="inline-flex items-center gap-2 bg-green-50 text-green-700 text-sm px-4 py-2 rounded-lg">
-        <i class="ti ti-file-type-xls"></i> Export Excel
+        <i class="ti ti-file-type-csv"></i> Export Excel (CSV)
     </a>
 </form>
 

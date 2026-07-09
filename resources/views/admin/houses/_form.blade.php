@@ -30,10 +30,10 @@
             class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-600/20">
     </div>
     <div>
-        <label class="block text-sm text-slate-600 mb-1.5">Tipe rumah</label>
-        <input type="text" name="type" value="{{ old('type', $house->type ?? '') }}" placeholder="mis. Tipe 36" required
+        <label class="block text-sm text-slate-600 mb-1.5">NIK pemilik</label>
+        <input type="text" name="nik" value="{{ old('nik', $house->nik ?? '') }}" placeholder="16 digit NIK" maxlength="16" inputmode="numeric" required
             class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-600/20">
-        @error('type') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+        @error('nik') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
     </div>
 </div>
 

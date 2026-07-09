@@ -13,7 +13,7 @@
         <thead class="bg-slate-50 text-slate-500">
             <tr>
                 <th class="text-left px-4 py-2 font-normal">Nama</th>
-                <th class="text-left px-4 py-2 font-normal">Email</th>
+                <th class="text-left px-4 py-2 font-normal">Username login</th>
                 <th class="text-left px-4 py-2 font-normal">Rumah</th>
                 <th class="text-left px-4 py-2 font-normal">Status</th>
                 <th class="text-right px-4 py-2 font-normal">Aksi</th>
@@ -23,7 +23,7 @@
             @forelse ($residents as $resident)
                 <tr class="border-t border-slate-100">
                     <td class="px-4 py-2.5">{{ $resident->name }}</td>
-                    <td class="px-4 py-2.5">{{ $resident->email }}</td>
+                    <td class="px-4 py-2.5 font-mono text-xs bg-slate-50 rounded w-fit">{{ $resident->username }}</td>
                     <td class="px-4 py-2.5">{{ $resident->houses->map->fullLabel()->join(', ') ?: '-' }}</td>
                     <td class="px-4 py-2.5">
                         @if ($resident->is_active)

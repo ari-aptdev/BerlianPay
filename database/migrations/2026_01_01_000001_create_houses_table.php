@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('house_number', 20);
             $table->string('owner_name');
             $table->string('phone')->nullable();
-            $table->string('type', 50)->comment('Tipe rumah, dipakai untuk menentukan tarif IPL, mis: Tipe 36, Tipe 45');
+            $table->string('nik', 16)->unique()->comment('Nomor Induk Kependudukan pemilik rumah');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
 
