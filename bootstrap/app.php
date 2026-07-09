@@ -14,6 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => EnsureUserHasRole::class,
         ]);
+
+        // Percayai semua proxy (Railway berjalan di balik load balancer/proxy)
+        // supaya Laravel tahu request aslinya HTTPS meski diteruskan via HTTP internal.
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
