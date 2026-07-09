@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Providers;
+
+use App\Models\House;
+use App\Models\Payment;
+use App\Policies\HousePolicy;
+use App\Policies\PaymentPolicy;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\ServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
+{
+    public function register(): void
+    {
+        //
+    }
+
+    public function boot(): void
+    {
+        Gate::policy(House::class, HousePolicy::class);
+        Gate::policy(Payment::class, PaymentPolicy::class);
+    }
+}
