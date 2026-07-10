@@ -24,8 +24,8 @@
         </div>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
-            <button class="text-slate-400 text-sm flex items-center gap-1">
-                <i class="ti ti-logout"></i>
+            <button class="text-slate-400 text-sm flex items-center gap-1.5">
+                <i class="ti ti-logout"></i> Keluar
             </button>
         </form>
     </div>
