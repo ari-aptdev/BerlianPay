@@ -17,6 +17,8 @@ class Payment extends Model
         'amount',
         'status',
         'proof_image',
+        'signature',
+        'signed_at',
         'paid_at',
         'recorded_by_admin_id',
         'notes',
@@ -26,6 +28,7 @@ class Payment extends Model
     {
         return [
             'paid_at' => 'datetime',
+            'signed_at' => 'datetime',
             'amount' => 'integer',
         ];
     }

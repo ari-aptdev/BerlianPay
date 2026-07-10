@@ -4,13 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - BerlianPay</title>
+    <script>
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://unpkg.com/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
     <script>
-        tailwind.config = { theme: { extend: { colors: { brand: {
+        tailwind.config = { darkMode: 'class', theme: { extend: { colors: { brand: {
             50: '#eef4ff', 600: '#1a45c0', 700: '#153a9e',
         } } } } }
     </script>
+    <style>
+        .dark body { background-color: #020617; }
+        .dark .bg-slate-50 { background-color: #0f172a; }
+        .dark .bg-white { background-color: #1e293b; }
+        .dark .border-slate-200 { border-color: #334155; }
+        .dark .text-slate-900 { color: #f8fafc; }
+        .dark .text-slate-600 { color: #94a3b8; }
+        .dark .text-slate-500 { color: #94a3b8; }
+        .dark .text-slate-400 { color: #64748b; }
+        .dark .bg-red-50 { background-color: rgba(239,68,68,0.15); }
+        .dark .text-red-700 { color: #f87171; }
+        .dark input {
+            background-color: #1e293b;
+            border-color: #334155 !important;
+            color: #e2e8f0;
+        }
+    </style>
 </head>
 <body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
 

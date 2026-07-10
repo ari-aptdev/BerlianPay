@@ -36,6 +36,16 @@
         </tr>
     </table>
 
+    @if ($payment->signature)
+        <div class="border-t border-slate-100 pt-4 mb-4">
+            <p class="text-sm text-slate-500 mb-2">Bukti serah terima (TTD saat penagihan)</p>
+            <div class="border border-slate-200 rounded-lg p-3 bg-slate-50 flex items-center justify-center">
+                <img src="{{ $payment->signature }}" alt="TTD bukti serah terima" class="h-24">
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Ditandatangani {{ $payment->signed_at?->format('d M Y, H:i') }}</p>
+        </div>
+    @endif
+
     @if ($payment->proof_image)
         <a href="{{ route('resident.payments.download-proof', $payment) }}" class="block text-center bg-slate-50 text-slate-600 text-sm py-2.5 rounded-lg">
             <i class="ti ti-download"></i> Download bukti pembayaran

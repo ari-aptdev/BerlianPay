@@ -16,6 +16,8 @@ return new class extends Migration
             $table->unsignedBigInteger('amount');
             $table->enum('status', ['paid', 'unpaid'])->default('unpaid');
             $table->string('proof_image')->nullable();
+            $table->longText('signature')->nullable()->comment('TTD digital bukti serah terima, disimpan sebagai base64 PNG');
+            $table->timestamp('signed_at')->nullable();
             $table->timestamp('paid_at')->nullable();
             $table->foreignId('recorded_by_admin_id')->nullable()->constrained('users')->nullOnDelete();
             $table->text('notes')->nullable();

@@ -33,6 +33,7 @@
                 <th class="text-left px-4 py-2 font-normal">Nominal</th>
                 <th class="text-left px-4 py-2 font-normal">Status</th>
                 <th class="text-left px-4 py-2 font-normal">Bukti</th>
+                <th class="text-left px-4 py-2 font-normal">TTD</th>
                 <th class="text-right px-4 py-2 font-normal">Aksi</th>
             </tr>
         </thead>
@@ -56,6 +57,15 @@
                             <span class="text-slate-300">-</span>
                         @endif
                     </td>
+                    <td class="px-4 py-2.5">
+                        @if ($payment->signature)
+                            <span class="inline-flex items-center gap-1 bg-green-50 text-green-700 text-xs px-2 py-1 rounded-md">
+                                <i class="ti ti-signature text-xs"></i> Ada
+                            </span>
+                        @else
+                            <span class="text-slate-300">-</span>
+                        @endif
+                    </td>
                     <td class="px-4 py-2.5 text-right space-x-2">
                         <a href="{{ route('admin.payments.edit', $payment) }}" class="text-brand-600 hover:underline">Edit</a>
                         <form method="POST" action="{{ route('admin.payments.destroy', $payment) }}" class="inline" onsubmit="return confirm('Hapus data pembayaran ini?')">
@@ -65,7 +75,7 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="6" class="px-4 py-6 text-center text-slate-400">Belum ada data pembayaran.</td></tr>
+                <tr><td colspan="7" class="px-4 py-6 text-center text-slate-400">Belum ada data pembayaran.</td></tr>
             @endforelse
         </tbody>
     </table>

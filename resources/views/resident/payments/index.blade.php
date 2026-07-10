@@ -28,6 +28,12 @@
                     <i class="ti ti-bell-ringing text-xs"></i> Reminder terkirim {{ $lastReminder->sent_at->format('d M Y') }}
                 </span>
             @endif
+
+            @if ($payment->signature)
+                <span class="inline-block mt-2 text-xs text-green-600">
+                    <i class="ti ti-signature text-xs"></i> Sudah ada bukti serah terima
+                </span>
+            @endif
         </a>
     @empty
         <div class="text-center text-sm text-slate-400 py-10">Belum ada riwayat pembayaran.</div>

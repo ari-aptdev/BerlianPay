@@ -21,6 +21,7 @@ class StorePaymentRequest extends FormRequest
             'amount' => ['required', 'integer', 'min:0'],
             'status' => ['required', Rule::in(['paid', 'unpaid'])],
             'proof_image' => ['nullable', 'image', 'max:4096'],
+            'signature' => ['nullable', 'string'],
             'paid_at' => ['nullable', 'date'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ];
