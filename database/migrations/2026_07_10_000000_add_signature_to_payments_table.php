@@ -1,14 +1,23 @@
-public function up()
-{
-    Schema::table('payments', function (Blueprint $table) {
-        $table->longText('signature')->nullable();
-        $table->timestamp('signed_at')->nullable();
-    });
-}
+<?php
 
-public function down()
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
 {
-    Schema::table('payments', function (Blueprint $table) {
-        $table->dropColumn(['signature', 'signed_at']);
-    });
-}
+    public function up()
+    {
+        Schema::table('payments', function (Blueprint $table) {
+            $table->longText('signature')->nullable();
+            $table->timestamp('signed_at')->nullable();
+        });
+    }
+
+    public function down()
+    {
+        Schema::table('payments', function (Blueprint $table) {
+            $table->dropColumn(['signature', 'signed_at']);
+        });
+    }
+};
