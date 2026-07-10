@@ -44,4 +44,11 @@
 
     <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white text-sm py-2.5 rounded-lg">Simpan perubahan</button>
 </form>
+
+<form method="POST" action="{{ route('logout') }}" class="mt-3">
+    @csrf
+    <button class="w-full flex items-center justify-center gap-2 border border-slate-200 text-red-500 text-sm py-2.5 rounded-lg">
+        <i class="ti ti-logout"></i> Keluar dari akun
+    </button>
+</form>
 @endsection
