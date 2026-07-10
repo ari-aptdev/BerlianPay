@@ -47,8 +47,10 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        // Redirect otomatis sesuai role — ini kunci dari "satu form login"
-        return redirect()->intended($user->isAdmin() ? route('admin.dashboard') : route('resident.dashboard'));
+        // Redirect LANGSUNG ke dashboard sesuai role (bukan pakai ->intended()).
+        // ->intended() bisa membawa URL yang diakses sebelumnya (mis. halaman admin)
+        // dari sesi lama, sehingga warga bisa ke-redirect ke URL admin dan kena 403.
+        return redirect()->to($user->isAdmin() ? route('admin.dashboard') : route('resident.dashboard'));
     }
 
     public function destroy(Request $request): RedirectResponse
