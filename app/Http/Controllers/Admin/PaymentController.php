@@ -49,6 +49,10 @@ class PaymentController extends Controller
             $data['paid_at'] = now();
         }
 
+        if (! empty($data['signature'])) {
+            $data['signed_at'] = now();
+        }
+
         $data['recorded_by_admin_id'] = $request->user()->id;
 
         Payment::updateOrCreate(
@@ -83,6 +87,13 @@ class PaymentController extends Controller
 
         if ($data['status'] === 'paid' && empty($payment->paid_at) && empty($data['paid_at'])) {
             $data['paid_at'] = now();
+        }
+
+        if (! empty($data['signature'])) {
+            $data['signed_at'] = now();
+        } else {
+            // Jangan timpa TTD yang sudah ada kalau admin gak gambar ulang di form edit
+            unset($data['signature']);
         }
 
         $payment->update($data);
