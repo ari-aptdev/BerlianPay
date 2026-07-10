@@ -7,16 +7,31 @@ use Illuminate\Database\Seeder;
 
 class IplRateSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        $rates = [
-            ['house_type' => 'Tipe 36', 'nominal' => 150000, 'effective_date' => '2025-01-01'],
-            ['house_type' => 'Tipe 45', 'nominal' => 200000, 'effective_date' => '2025-01-01'],
-            ['house_type' => 'Tipe 54', 'nominal' => 250000, 'effective_date' => '2025-01-01'],
-        ];
+        IplRate::updateOrCreate(
+            ['category' => 'rukem'],
+            [
+                'kas' => 10000,
+                'sampah' => 30000,
+                'kebersihan' => 40000,
+                'rukem' => 5000,
+                'total' => 85000,
+            ]
+        );
 
-        foreach ($rates as $rate) {
-            IplRate::create($rate);
-        }
+        IplRate::updateOrCreate(
+            ['category' => 'non_rukem'],
+            [
+                'kas' => 10000,
+                'sampah' => 30000,
+                'kebersihan' => 40000,
+                'rukem' => 0,
+                'total' => 80000,
+            ]
+        );
     }
 }
