@@ -63,14 +63,42 @@
 
     <div class="flex-1 flex flex-col min-w-0">
         <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8">
-            <h1 class="font-medium text-slate-900">{{ $title ?? 'Dashboard' }}</h1>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-3">
+                <button onclick="document.getElementById('mobileNav').classList.toggle('hidden')" class="md:hidden text-slate-500">
+                    <i class="ti ti-menu-2 text-xl"></i>
+                </button>
+                <h1 class="font-medium text-slate-900">{{ $title ?? 'Dashboard' }}</h1>
+            </div>
+            <div class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-sm font-medium">
                     {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
                 </div>
                 <span class="text-sm text-slate-600 hidden sm:block">{{ auth()->user()->name }}</span>
+                <form method="POST" action="{{ route('logout') }}" class="hidden md:block">
+                    @csrf
+                    <button class="flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-600 ml-2">
+                        <i class="ti ti-logout text-base"></i> Keluar
+                    </button>
+                </form>
             </div>
         </header>
+
+        <!-- Menu mobile: dropdown penuh berisi navigasi + logout, karena sidebar di atas hilang total di layar kecil -->
+        <div id="mobileNav" class="hidden md:hidden bg-white border-b border-slate-200 px-3 py-3 space-y-1">
+            @foreach ($navItems as $item)
+                <a href="{{ route($item['route']) }}"
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm {{ request()->routeIs(explode('.index', $item['route'])[0].'*') ? 'bg-brand-50 text-brand-700 font-medium' : 'text-slate-600' }}">
+                    <i class="ti {{ $item['icon'] }} text-base"></i>
+                    {{ $item['label'] }}
+                </a>
+            @endforeach
+            <form method="POST" action="{{ route('logout') }}" class="pt-1 border-t border-slate-100 mt-1">
+                @csrf
+                <button class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-500 w-full">
+                    <i class="ti ti-logout text-base"></i> Keluar
+                </button>
+            </form>
+        </div>
 
         <main class="flex-1 p-4 md:p-8">
             @if (session('success'))
