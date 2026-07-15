@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - BerlianPay</title>
+    <title>Daftar Akun Warga - BerlianPay</title>
     <script>
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
@@ -41,8 +41,8 @@
         <div class="w-12 h-12 rounded-xl bg-brand-600 flex items-center justify-center text-white mb-3">
             <i class="ti ti-diamond text-2xl"></i>
         </div>
-        <h1 class="text-lg font-medium text-slate-900">BerlianPay</h1>
-        <p class="text-sm text-slate-500">Sistem pencatatan IPL perumahan</p>
+        <h1 class="text-lg font-medium text-slate-900">Daftar Akun Warga</h1>
+        <p class="text-sm text-slate-500 text-center">Isi data di bawah, akun kamu perlu diaktifkan admin dulu sebelum bisa login.</p>
     </div>
 
     <div class="bg-white border border-slate-200 rounded-2xl p-6">
@@ -52,32 +52,32 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('login') }}" class="space-y-4">
+        <form method="POST" action="{{ route('register.store') }}" class="space-y-4">
             @csrf
             <div>
-                <label class="block text-sm text-slate-600 mb-1.5">Email (admin) / Username (warga)</label>
-                <input type="text" name="login" value="{{ old('login') }}" required autofocus
+                <label class="block text-sm text-slate-600 mb-1.5">Nama lengkap</label>
+                <input type="text" name="name" value="{{ old('name') }}" required autofocus
                     class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-600/20 focus:border-brand-600">
             </div>
             <div>
-                <label class="block text-sm text-slate-600 mb-1.5">Password</label>
-                <input type="password" name="password" required
+                <label class="block text-sm text-slate-600 mb-1.5">No. HP</label>
+                <input type="text" name="phone" value="{{ old('phone') }}" required
                     class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-600/20 focus:border-brand-600">
             </div>
-            <label class="flex items-center gap-2 text-sm text-slate-500">
-                <input type="checkbox" name="remember" class="rounded border-slate-300">
-                Ingat saya
-            </label>
+            <div>
+                <label class="block text-sm text-slate-600 mb-1.5">NIK (16 digit)</label>
+                <input type="text" name="nik" value="{{ old('nik') }}" maxlength="16" inputmode="numeric" required
+                    class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-600/20 focus:border-brand-600">
+                <p class="text-xs text-slate-400 mt-1">Username & password login akan dibuatkan otomatis dan ditampilkan setelah kamu daftar.</p>
+            </div>
             <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white rounded-lg py-2.5 text-sm font-medium transition">
-                Masuk
+                Daftar
             </button>
         </form>
     </div>
 
-    <p class="text-center text-xs text-slate-400 mt-6">&copy; {{ date('Y') }} BerlianPay</p>
-
-    <p class="text-center text-sm text-slate-500 mt-3">
-        Warga baru? <a href="{{ route('register') }}" class="text-brand-600 font-medium">Daftar akun di sini</a>
+    <p class="text-center text-sm text-slate-500 mt-4">
+        Sudah punya akun? <a href="{{ route('login') }}" class="text-brand-600 font-medium">Login di sini</a>
     </p>
 </div>
 

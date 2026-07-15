@@ -75,16 +75,25 @@
         </div>
         <nav class="flex-1 px-3 py-4 space-y-1">
             @php
-                $navItems = [
-                    ['route' => 'admin.dashboard', 'icon' => 'ti-layout-dashboard', 'label' => 'Dashboard'],
-                    ['route' => 'admin.houses.index', 'icon' => 'ti-home', 'label' => 'Data warga'],
-                    ['route' => 'admin.ipl-rates.index', 'icon' => 'ti-receipt', 'label' => 'Tarif IPL'],
-                    ['route' => 'admin.payments.index', 'icon' => 'ti-cash', 'label' => 'Pembayaran'],
-                    ['route' => 'admin.reports.index', 'icon' => 'ti-file-export', 'label' => 'Laporan'],
-                    ['route' => 'admin.residents.index', 'icon' => 'ti-users', 'label' => 'Akun warga'],
-                    ['route' => 'admin.settings.reminder', 'icon' => 'ti-bell', 'label' => 'Pengaturan reminder'],
-                    ['route' => 'admin.reminder-logs.index', 'icon' => 'ti-history', 'label' => 'Log reminder'],
+                $allNavItems = [
+                    ['route' => 'admin.dashboard', 'icon' => 'ti-layout-dashboard', 'label' => 'Dashboard', 'module' => null],
+                    ['route' => 'admin.houses.index', 'icon' => 'ti-home', 'label' => 'Data warga', 'module' => 'houses'],
+                    ['route' => 'admin.ipl-rates.index', 'icon' => 'ti-receipt', 'label' => 'Tarif IPL', 'module' => 'ipl_rates'],
+                    ['route' => 'admin.payments.index', 'icon' => 'ti-cash', 'label' => 'Pembayaran', 'module' => 'payments'],
+                    ['route' => 'admin.payment-confirmations.index', 'icon' => 'ti-clock-check', 'label' => 'Konfirmasi Pembayaran', 'module' => 'payment_confirmations'],
+                    ['route' => 'admin.reports.index', 'icon' => 'ti-file-export', 'label' => 'Laporan', 'module' => 'reports'],
+                    ['route' => 'admin.residents.index', 'icon' => 'ti-users', 'label' => 'Akun warga', 'module' => 'residents'],
+                    ['route' => 'admin.admin-accounts.index', 'icon' => 'ti-shield-lock', 'label' => 'Akun Admin & RBAC', 'module' => 'admin_accounts'],
+                    ['route' => 'admin.settings.reminder', 'icon' => 'ti-bell', 'label' => 'Pengaturan reminder', 'module' => 'settings'],
+                    ['route' => 'admin.reminder-logs.index', 'icon' => 'ti-history', 'label' => 'Log reminder', 'module' => 'reminder_logs'],
                 ];
+                $navItems = collect($allNavItems)->filter(fn ($item) => $item['module'] === null || auth()->user()->canAccess($item['module'], 'view'))->all();
+
+                $pendingResidentsCount = auth()->user()->canAccess('residents', 'view')
+                    ? \App\Models\User::where('role', 'warga')->where('is_active', false)->count() : 0;
+                $pendingPaymentsCount = auth()->user()->canAccess('payment_confirmations', 'view')
+                    ? \App\Models\Payment::where('status', 'pending_confirmation')->count() : 0;
+                $totalNotif = $pendingResidentsCount + $pendingPaymentsCount;
             @endphp
             @foreach ($navItems as $item)
                 <a href="{{ route($item['route']) }}"
@@ -118,6 +127,36 @@
                     <i class="ti ti-sun text-lg dark:hidden"></i>
                     <i class="ti ti-moon text-lg hidden dark:inline"></i>
                 </button>
+
+                <div class="relative">
+                    <button onclick="document.getElementById('notifDropdown').classList.toggle('hidden')"
+                            class="w-9 h-9 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 relative">
+                        <i class="ti ti-bell text-lg"></i>
+                        @if ($totalNotif > 0)
+                            <span class="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">{{ $totalNotif > 9 ? '9+' : $totalNotif }}</span>
+                        @endif
+                    </button>
+                    <div id="notifDropdown" class="hidden absolute right-0 mt-2 w-72 bg-white border border-slate-200 rounded-xl shadow-lg z-20 overflow-hidden">
+                        <div class="px-4 py-2 border-b border-slate-100 text-sm font-medium text-slate-700">Notifikasi</div>
+                        @if ($totalNotif === 0)
+                            <p class="px-4 py-4 text-sm text-slate-400">Tidak ada notifikasi baru.</p>
+                        @else
+                            @if ($pendingResidentsCount > 0)
+                                <a href="{{ route('admin.residents.index') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 border-b border-slate-100">
+                                    <i class="ti ti-user-plus text-brand-600"></i>
+                                    <span class="text-sm text-slate-600">{{ $pendingResidentsCount }} warga baru menunggu approval akun</span>
+                                </a>
+                            @endif
+                            @if ($pendingPaymentsCount > 0)
+                                <a href="{{ route('admin.payment-confirmations.index') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50">
+                                    <i class="ti ti-clock-check text-amber-600"></i>
+                                    <span class="text-sm text-slate-600">{{ $pendingPaymentsCount }} konfirmasi pembayaran menunggu validasi</span>
+                                </a>
+                            @endif
+                        @endif
+                    </div>
+                </div>
+
                 <div class="w-9 h-9 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-sm font-medium">
                     {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
                 </div>

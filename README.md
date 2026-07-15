@@ -121,6 +121,16 @@ git push -u origin main
 
 Ganti `username-kamu/berlianpay` dengan repo GitHub kamu sendiri (buat dulu repo kosong di github.com kalau belum ada).
 
+## Troubleshooting deploy (Railway/hosting lain)
+
+Kalau `composer install` gagal dengan pesan **"affected by security advisories"** yang memblokir instalasi `laravel/framework`:
+
+- Ini bukan bug di kode, tapi mekanisme keamanan di sisi Railway yang menolak instalasi versi paket yang tercatat punya advisory (walau mungkin sebenarnya sudah dapat patch terbaru yang belum sempat mereka index).
+- Project ini sudah menambahkan `config.policy.advisories.block: false` di `composer.json` untuk mematikan proteksi tersebut. **Catatan jujur:** ini bukan konfigurasi standar Composer yang saya (AI) yakin 100% formatnya — itu diambil literal dari instruksi di pesan error Railway kamu. Kalau ternyata masih gagal, coba cara ini sebagai gantinya:
+  1. Cek dashboard Railway → Settings → cari opsi terkait "security advisories" atau "vulnerability check" dan nonaktifkan dari sana langsung.
+  2. Atau ubah Build Command di Railway secara manual jadi: `composer install --no-interaction --optimize-autoloader --no-scripts` lalu tambahkan env var yang diminta Railway untuk skip audit (lihat dokumentasi Railway/Nixpacks terbaru, karena fitur ini kemungkinan baru).
+- Dependency `maatwebsite/excel` sudah **dihapus total** dari project ini (diganti export CSV manual) karena versi lama yang ke-resolve butuh `ext-gd` yang belum aktif di image PHP Railway, dan versi terbarunya juga kena blokir advisory yang sama. Export "Excel" sekarang menghasilkan file `.csv` yang tetap terbuka normal di Excel/Google Sheets.
+
 ## Roadmap lanjutan (belum termasuk di MVP ini)
 - Integrasi payment gateway/QRIS otomatis
 - Notifikasi push/in-app

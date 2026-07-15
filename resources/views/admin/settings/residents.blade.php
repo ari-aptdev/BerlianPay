@@ -26,17 +26,23 @@
                     <td class="px-4 py-2.5 font-mono text-xs bg-slate-50 rounded w-fit">{{ $resident->username }}</td>
                     <td class="px-4 py-2.5">{{ $resident->houses->map->fullLabel()->join(', ') ?: '-' }}</td>
                     <td class="px-4 py-2.5">
-                        @if ($resident->is_active)
+                        @if (! $resident->is_active && $resident->houses->isEmpty())
+                            <span class="bg-amber-50 text-amber-700 text-xs px-2.5 py-1 rounded-md">Menunggu Approval</span>
+                        @elseif ($resident->is_active)
                             <span class="bg-green-50 text-green-700 text-xs px-2.5 py-1 rounded-md">Aktif</span>
                         @else
                             <span class="bg-slate-100 text-slate-500 text-xs px-2.5 py-1 rounded-md">Nonaktif</span>
                         @endif
                     </td>
                     <td class="px-4 py-2.5 text-right space-x-2">
-                        <form method="POST" action="{{ route('admin.residents.toggle-active', $resident) }}" class="inline">
-                            @csrf @method('PATCH')
-                            <button class="text-brand-600 hover:underline">{{ $resident->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</button>
-                        </form>
+                        @if (! $resident->is_active && $resident->houses->isEmpty())
+                            <a href="{{ route('admin.residents.approve-form', $resident) }}" class="text-brand-600 hover:underline font-medium">Setujui</a>
+                        @else
+                            <form method="POST" action="{{ route('admin.residents.toggle-active', $resident) }}" class="inline">
+                                @csrf @method('PATCH')
+                                <button class="text-brand-600 hover:underline">{{ $resident->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</button>
+                            </form>
+                        @endif
                         <form method="POST" action="{{ route('admin.residents.reset-password', $resident) }}" class="inline" onsubmit="return confirm('Reset password warga ini?')">
                             @csrf @method('PATCH')
                             <button class="text-slate-500 hover:underline">Reset password</button>

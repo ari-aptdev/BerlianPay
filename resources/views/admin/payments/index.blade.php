@@ -12,6 +12,7 @@
     <select name="status" class="rounded-lg border border-slate-200 px-3 py-2 text-sm">
         <option value="">Semua status</option>
         <option value="paid" @selected(request('status') === 'paid')>Lunas</option>
+        <option value="pending_confirmation" @selected(request('status') === 'pending_confirmation')>Menunggu Validasi</option>
         <option value="unpaid" @selected(request('status') === 'unpaid')>Belum bayar</option>
     </select>
     <select name="month" class="rounded-lg border border-slate-200 px-3 py-2 text-sm">
@@ -46,6 +47,8 @@
                     <td class="px-4 py-2.5">
                         @if ($payment->status === 'paid')
                             <span class="bg-green-50 text-green-700 text-xs px-2.5 py-1 rounded-md">Lunas</span>
+                        @elseif ($payment->status === 'pending_confirmation')
+                            <span class="bg-amber-50 text-amber-700 text-xs px-2.5 py-1 rounded-md">Menunggu Validasi</span>
                         @else
                             <span class="bg-red-50 text-red-700 text-xs px-2.5 py-1 rounded-md">Belum bayar</span>
                         @endif

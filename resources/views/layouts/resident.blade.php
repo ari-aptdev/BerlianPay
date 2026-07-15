@@ -67,10 +67,13 @@
                 <i class="ti ti-sun text-lg dark:hidden"></i>
                 <i class="ti ti-moon text-lg hidden dark:inline"></i>
             </button>
+            <a href="{{ route('resident.profile.edit') }}" class="text-slate-400">
+                <i class="ti ti-user text-lg"></i>
+            </a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button class="text-slate-400 text-sm flex items-center gap-1.5">
-                    <i class="ti ti-logout"></i> Keluar
+                    <i class="ti ti-logout"></i>
                 </button>
             </form>
         </div>
@@ -88,15 +91,12 @@
 </main>
 
 <nav class="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 md:hidden">
-    <div class="max-w-md mx-auto grid grid-cols-3">
+    <div class="max-w-md mx-auto grid grid-cols-2">
         <a href="{{ route('resident.dashboard') }}" class="flex flex-col items-center py-2.5 text-xs {{ request()->routeIs('resident.dashboard') ? 'text-brand-600' : 'text-slate-400' }}">
-            <i class="ti ti-layout-dashboard text-lg mb-0.5"></i> Dashboard
+            <i class="ti ti-layout-dashboard text-lg mb-0.5"></i> Status Bulan Ini
         </a>
         <a href="{{ route('resident.payments.index') }}" class="flex flex-col items-center py-2.5 text-xs {{ request()->routeIs('resident.payments.*') ? 'text-brand-600' : 'text-slate-400' }}">
             <i class="ti ti-receipt text-lg mb-0.5"></i> Riwayat
-        </a>
-        <a href="{{ route('resident.profile.edit') }}" class="flex flex-col items-center py-2.5 text-xs {{ request()->routeIs('resident.profile.*') ? 'text-brand-600' : 'text-slate-400' }}">
-            <i class="ti ti-user text-lg mb-0.5"></i> Profil
         </a>
     </div>
 </nav>

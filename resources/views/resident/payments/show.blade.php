@@ -8,10 +8,18 @@
         <h2 class="text-base font-medium text-slate-900">Kwitansi IPL</h2>
         @if ($payment->status === 'paid')
             <span class="bg-green-50 text-green-700 text-xs px-2.5 py-1 rounded-md">Lunas</span>
+        @elseif ($payment->status === 'pending_confirmation')
+            <span class="bg-amber-50 text-amber-700 text-xs px-2.5 py-1 rounded-md">Menunggu Validasi</span>
         @else
-            <span class="bg-red-50 text-red-700 text-xs px-2.5 py-1 rounded-md">Belum bayar</span>
+            <span class="bg-red-50 text-red-700 text-xs px-2.5 py-1 rounded-md">Belum Bayar</span>
         @endif
     </div>
+
+    @if ($payment->rejection_reason)
+        <div class="bg-red-50 border border-red-100 rounded-lg p-3 mb-4">
+            <p class="text-xs text-red-700"><i class="ti ti-alert-circle"></i> Konfirmasi sebelumnya ditolak: {{ $payment->rejection_reason }}</p>
+        </div>
+    @endif
 
     <table class="w-full text-sm mb-4">
         <tr class="border-t border-slate-100">
@@ -52,6 +60,12 @@
         </a>
     @endif
 </div>
+
+@if ($payment->isUnpaid())
+    <a href="{{ route('resident.payments.confirm-form', $payment) }}" class="block w-full text-center mt-4 bg-brand-600 text-white text-sm py-2.5 rounded-lg">
+        Konfirmasi Pembayaran
+    </a>
+@endif
 
 <button onclick="window.print()" class="w-full mt-4 bg-brand-600 text-white text-sm py-2.5 rounded-lg">
     Cetak kwitansi
