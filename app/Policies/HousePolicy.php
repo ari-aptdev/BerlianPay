@@ -7,41 +7,37 @@ use App\Models\User;
 
 class HousePolicy
 {
-    /**
-     * Admin bebas kelola semua rumah.
-     */
-    public function before(User $user, string $ability): ?bool
-    {
-        return $user->isAdmin() ? true : null;
-    }
-
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin();
+        return $user->isAdmin() && $user->canAccess('houses', 'view');
     }
 
     /**
-     * Warga hanya boleh melihat rumah miliknya sendiri.
-     * Ini adalah pengecekan utama yang mencegah warga mengakses
-     * data rumah lain lewat manipulasi URL (mis. /resident/houses/7).
+     * Admin dengan akses 'view' boleh lihat semua rumah.
+     * Warga hanya boleh melihat rumah miliknya sendiri — ini pengecekan utama
+     * yang mencegah warga mengakses data rumah lain lewat manipulasi URL.
      */
     public function view(User $user, House $house): bool
     {
+        if ($user->isAdmin()) {
+            return $user->canAccess('houses', 'view');
+        }
+
         return $user->isWarga() && $user->ownsHouse($house);
     }
 
     public function create(User $user): bool
     {
-        return false; // hanya admin, sudah ditangani di before()
+        return $user->isAdmin() && $user->canAccess('houses', 'edit');
     }
 
     public function update(User $user, House $house): bool
     {
-        return false;
+        return $user->isAdmin() && $user->canAccess('houses', 'edit');
     }
 
     public function delete(User $user, House $house): bool
     {
-        return false;
+        return $user->isAdmin() && $user->canAccess('houses', 'edit');
     }
 }

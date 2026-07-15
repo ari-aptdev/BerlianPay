@@ -21,6 +21,8 @@ class User extends Authenticatable
         'username',
         'nik',
         'is_active',
+        'admin_access_type',
+        'permissions',
         'reminder_email_enabled',
         'reminder_wa_enabled',
     ];
@@ -30,12 +32,29 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    /**
+     * Daftar modul menu admin yang bisa diatur aksesnya untuk RBAC custom.
+     * key => label yang ditampilkan di UI.
+     */
+    public const MODULES = [
+        'houses' => 'Data Warga & Rumah',
+        'ipl_rates' => 'Tarif IPL',
+        'payments' => 'Pembayaran',
+        'payment_confirmations' => 'Konfirmasi Pembayaran Warga',
+        'reports' => 'Laporan',
+        'residents' => 'Akun Warga',
+        'admin_accounts' => 'Akun Admin & RBAC',
+        'settings' => 'Pengaturan Reminder',
+        'reminder_logs' => 'Log Reminder',
+    ];
+
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'permissions' => 'array',
             'reminder_email_enabled' => 'boolean',
             'reminder_wa_enabled' => 'boolean',
         ];
@@ -54,6 +73,35 @@ class User extends Authenticatable
     public function isWarga(): bool
     {
         return $this->role === 'warga';
+    }
+
+    /**
+     * Cek apakah admin ini punya akses ke modul tertentu.
+     * $action: 'view' atau 'edit'.
+     * - Akun admin lama / access_type null / 'full' -> selalu true (super admin, backward compatible)
+     * - 'read_only' -> hanya lolos untuk action 'view'
+     * - 'custom' -> cek array permissions[$module] berisi $action
+     */
+    public function canAccess(string $module, string $action = 'view'): bool
+    {
+        if (! $this->isAdmin()) {
+            return false;
+        }
+
+        $type = $this->admin_access_type ?? 'full';
+
+        if ($type === 'full') {
+            return true;
+        }
+
+        if ($type === 'read_only') {
+            return $action === 'view';
+        }
+
+        // custom
+        $allowed = $this->permissions[$module] ?? [];
+
+        return in_array($action, $allowed, true);
     }
 
     /**

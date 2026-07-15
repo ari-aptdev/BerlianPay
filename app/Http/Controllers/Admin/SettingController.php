@@ -10,11 +10,8 @@ class SettingController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(function ($request, $next) {
-            abort_unless($request->user()->isAdmin(), 403);
-
-            return $next($request);
-        });
+        $this->middleware(['auth', 'permission:settings,view'])->only(['edit']);
+        $this->middleware(['auth', 'permission:settings,edit'])->only(['update']);
     }
 
     public function edit()

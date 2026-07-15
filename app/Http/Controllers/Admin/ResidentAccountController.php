@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreResidentAccountRequest;
 use App\Models\House;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -13,16 +14,15 @@ class ResidentAccountController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(function ($request, $next) {
-            abort_unless($request->user()->isAdmin(), 403);
-
-            return $next($request);
-        });
+        $this->middleware(['auth', 'permission:residents,view'])->only(['index']);
+        $this->middleware(['auth', 'permission:residents,edit'])->only([
+            'create', 'store', 'toggleActive', 'resetPassword', 'approveForm', 'approve',
+        ]);
     }
 
     public function index()
     {
-        $residents = User::where('role', 'warga')->with('houses')->orderBy('name')->paginate(15);
+        $residents = User::where('role', 'warga')->with('houses')->orderByRaw('is_active asc')->orderBy('name')->paginate(15);
 
         return view('admin.settings.residents', compact('residents'));
     }
@@ -46,6 +46,7 @@ class ResidentAccountController extends Controller
             'username' => $username,
             'password' => Hash::make($request->password),
             'role' => 'warga',
+            'is_active' => true, // dibuat langsung oleh admin, gak perlu approval lagi
         ]);
 
         $resident->houses()->sync($request->house_ids);
@@ -55,11 +56,47 @@ class ResidentAccountController extends Controller
     }
 
     /**
+     * Halaman approve akun warga hasil registrasi mandiri.
+     * Kalau NIK-nya udah cocok otomatis ke rumah tertentu, tampilkan itu.
+     * Kalau belum ada rumah yang cocok, admin pilih manual di sini.
+     */
+    public function approveForm(User $resident)
+    {
+        abort_unless($resident->isWarga(), 404);
+
+        $houses = House::where('is_active', true)->orderBy('block')->orderBy('house_number')->get();
+        $assignedHouseIds = $resident->houses->pluck('id')->toArray();
+
+        return view('admin.settings.resident-approve', compact('resident', 'houses', 'assignedHouseIds'));
+    }
+
+    public function approve(Request $request, User $resident)
+    {
+        abort_unless($resident->isWarga(), 404);
+
+        $request->validate([
+            'house_ids' => ['required', 'array', 'min:1'],
+            'house_ids.*' => ['exists:houses,id'],
+        ]);
+
+        $resident->houses()->sync($request->house_ids);
+        $resident->update(['is_active' => true]);
+
+        return redirect()->route('admin.residents.index')->with('success', "Akun {$resident->name} berhasil diaktifkan.");
+    }
+
+    /**
      * Aktifkan / nonaktifkan akses login warga.
      */
     public function toggleActive(User $resident)
     {
         abort_unless($resident->isWarga(), 404);
+
+        // Kalau belum ada rumah yang di-assign (warga hasil registrasi mandiri
+        // yang NIK-nya gak auto-match), arahkan ke halaman approve dulu.
+        if (! $resident->is_active && $resident->houses()->count() === 0) {
+            return redirect()->route('admin.residents.approve-form', $resident);
+        }
 
         $resident->update(['is_active' => ! $resident->is_active]);
 

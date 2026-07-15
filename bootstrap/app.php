@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureHasPermission;
 use App\Http\Middleware\EnsureUserHasRole;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -13,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'role' => EnsureUserHasRole::class,
+            'permission' => EnsureHasPermission::class,
         ]);
 
         // Percayai semua proxy (Railway berjalan di balik load balancer/proxy)

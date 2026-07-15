@@ -16,6 +16,16 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password'),
             'role' => 'admin',
             'phone' => '081200000000',
+            'admin_access_type' => 'full',
+        ]);
+
+        User::create([
+            'name' => 'Ketua RT',
+            'email' => 'ketuart@berlianpay.test',
+            'password' => Hash::make('password'),
+            'role' => 'admin',
+            'phone' => '081200000001',
+            'admin_access_type' => 'read_only',
         ]);
 
         $residents = [

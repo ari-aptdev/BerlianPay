@@ -12,11 +12,7 @@ class ReportController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(function ($request, $next) {
-            abort_unless($request->user()->isAdmin(), 403);
-
-            return $next($request);
-        });
+        $this->middleware(['auth', 'permission:reports,view']);
     }
 
     public function index(Request $request)

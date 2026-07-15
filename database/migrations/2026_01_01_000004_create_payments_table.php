@@ -14,10 +14,12 @@ return new class extends Migration
             $table->unsignedTinyInteger('period_month');
             $table->unsignedSmallInteger('period_year');
             $table->unsignedBigInteger('amount');
-            $table->enum('status', ['paid', 'unpaid'])->default('unpaid');
+            $table->enum('status', ['unpaid', 'pending_confirmation', 'paid'])->default('unpaid');
             $table->string('proof_image')->nullable();
             $table->longText('signature')->nullable()->comment('TTD digital bukti serah terima, disimpan sebagai base64 PNG');
             $table->timestamp('signed_at')->nullable();
+            $table->timestamp('confirmed_at')->nullable()->comment('Waktu warga submit konfirmasi bayar mandiri');
+            $table->text('rejection_reason')->nullable()->comment('Alasan admin menolak konfirmasi warga');
             $table->timestamp('paid_at')->nullable();
             $table->foreignId('recorded_by_admin_id')->nullable()->constrained('users')->nullOnDelete();
             $table->text('notes')->nullable();

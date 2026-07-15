@@ -10,11 +10,8 @@ class IplRateController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(function ($request, $next) {
-            abort_unless($request->user()->isAdmin(), 403);
-
-            return $next($request);
-        });
+        $this->middleware(['auth', 'permission:ipl_rates,view'])->only(['index']);
+        $this->middleware(['auth', 'permission:ipl_rates,edit'])->only(['create', 'store', 'edit', 'update', 'destroy']);
     }
 
     public function index()

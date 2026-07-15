@@ -19,6 +19,8 @@ class Payment extends Model
         'proof_image',
         'signature',
         'signed_at',
+        'confirmed_at',
+        'rejection_reason',
         'paid_at',
         'recorded_by_admin_id',
         'notes',
@@ -29,6 +31,7 @@ class Payment extends Model
         return [
             'paid_at' => 'datetime',
             'signed_at' => 'datetime',
+            'confirmed_at' => 'datetime',
             'amount' => 'integer',
         ];
     }
@@ -46,6 +49,25 @@ class Payment extends Model
     public function isPaid(): bool
     {
         return $this->status === 'paid';
+    }
+
+    public function isPendingConfirmation(): bool
+    {
+        return $this->status === 'pending_confirmation';
+    }
+
+    public function isUnpaid(): bool
+    {
+        return $this->status === 'unpaid';
+    }
+
+    public function statusLabel(): string
+    {
+        return match ($this->status) {
+            'paid' => 'Lunas',
+            'pending_confirmation' => 'Menunggu Validasi',
+            default => 'Belum Bayar',
+        };
     }
 
     public function periodLabel(): string

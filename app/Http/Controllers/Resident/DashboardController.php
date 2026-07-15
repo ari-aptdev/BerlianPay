@@ -11,7 +11,33 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         // Ambil semua rumah milik user yang login (bisa lebih dari 1)
-        $houseIds = $request->user()->houses()->pluck('houses.id');
+        $houses = $request->user()->houses;
+
+        // Pastikan setiap rumah punya baris tagihan bulan berjalan,
+        // biar warga selalu ada sesuatu buat dicek/dikonfirmasi statusnya.
+        foreach ($houses as $house) {
+            $exists = Payment::where('house_id', $house->id)
+                ->where('period_month', now()->month)
+                ->where('period_year', now()->year)
+                ->exists();
+
+            if (! $exists) {
+                $lastAmount = Payment::where('house_id', $house->id)
+                    ->orderByDesc('period_year')
+                    ->orderByDesc('period_month')
+                    ->value('amount') ?? 0;
+
+                Payment::create([
+                    'house_id' => $house->id,
+                    'period_month' => now()->month,
+                    'period_year' => now()->year,
+                    'amount' => $lastAmount,
+                    'status' => 'unpaid',
+                ]);
+            }
+        }
+
+        $houseIds = $houses->pluck('id');
 
         $currentPeriodPayments = Payment::with('house')
             ->whereIn('house_id', $houseIds)
