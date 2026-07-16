@@ -22,12 +22,18 @@ class RegisteredResidentController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:20'],
             'nik' => ['required', 'digits:16', 'unique:users,nik'],
+            'block' => ['required', 'string', 'max:5', 'regex:/^[A-Za-z]+$/'],
+            'house_number' => ['required', 'integer', 'min:1', 'max:99'],
         ], [
             'nik.unique' => 'NIK ini sudah terdaftar. Kalau ini akun kamu, hubungi admin buat reset password.',
+            'block.regex' => 'Blok cuma boleh huruf, misal B.',
         ]);
 
         $username = User::generateUsername($validated['name'], $validated['nik']);
         $password = Str::password(10, symbols: false);
+
+        $block = strtoupper($validated['block']);
+        $houseNumber = str_pad((string) $validated['house_number'], 2, '0', STR_PAD_LEFT);
 
         $resident = User::create([
             'name' => $validated['name'],
@@ -39,11 +45,16 @@ class RegisteredResidentController extends Controller
             'is_active' => false, // wajib diaktifkan admin dulu
         ]);
 
-        // Coba auto-match ke rumah yang NIK pemiliknya sama persis (sudah diinput admin sebelumnya)
-        $matchedHouse = House::where('nik', $validated['nik'])->first();
-        if ($matchedHouse) {
-            $resident->houses()->sync([$matchedHouse->id]);
-        }
+        // Otomatis bikin/hubungkan data rumah berdasarkan Blok-No Rumah yang diisi warga,
+        // jadi admin TIDAK perlu lagi bikin data rumah secara manual.
+        $house = House::firstOrNew(['block' => $block, 'house_number' => $houseNumber]);
+        $house->owner_name = $validated['name'];
+        $house->phone = $validated['phone'];
+        $house->nik = $validated['nik'];
+        $house->is_active = true;
+        $house->save();
+
+        $resident->houses()->sync([$house->id]);
 
         return redirect()->route('register.success')->with([
             'generated_username' => $username,

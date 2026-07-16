@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreResidentAccountRequest;
 use App\Models\House;
+use App\Models\ResidentNotification;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -81,6 +82,13 @@ class ResidentAccountController extends Controller
 
         $resident->houses()->sync($request->house_ids);
         $resident->update(['is_active' => true]);
+
+        ResidentNotification::notify(
+            $resident->id,
+            'account_approved',
+            'Akun Kamu Disetujui!',
+            'Selamat datang di BerlianPay. Akun kamu sudah aktif, silakan login dan cek status pembayaran IPL kamu.',
+        );
 
         return redirect()->route('admin.residents.index')->with('success', "Akun {$resident->name} berhasil diaktifkan.");
     }

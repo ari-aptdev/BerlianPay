@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('username')->nullable()->unique()->comment('Login khusus warga: kombinasi nama + 3 digit akhir NIK');
             $table->string('nik', 16)->nullable()->unique();
             $table->boolean('is_active')->default(true)->comment('Warga hasil registrasi mandiri default false, harus diaktifkan admin');
+            $table->boolean('is_super_admin')->default(false)->comment('Cuma super admin yang bisa kelola RBAC akun admin lain');
             $table->enum('admin_access_type', ['full', 'read_only', 'custom'])->nullable()->comment('Hanya relevan untuk role=admin, mengatur RBAC');
             $table->json('permissions')->nullable()->comment('Dipakai kalau admin_access_type=custom, format: {"module": ["view","edit"]}');
             $table->boolean('reminder_email_enabled')->default(true);

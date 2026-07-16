@@ -17,6 +17,7 @@ class UserSeeder extends Seeder
             'role' => 'admin',
             'phone' => '081200000000',
             'admin_access_type' => 'full',
+            'is_super_admin' => true,
         ]);
 
         User::create([

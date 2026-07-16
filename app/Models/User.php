@@ -21,6 +21,7 @@ class User extends Authenticatable
         'username',
         'nik',
         'is_active',
+        'is_super_admin',
         'admin_access_type',
         'permissions',
         'reminder_email_enabled',
@@ -54,6 +55,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'is_super_admin' => 'boolean',
             'permissions' => 'array',
             'reminder_email_enabled' => 'boolean',
             'reminder_wa_enabled' => 'boolean',
@@ -63,6 +65,11 @@ class User extends Authenticatable
     public function houses(): BelongsToMany
     {
         return $this->belongsToMany(House::class, 'user_house');
+    }
+
+    public function residentNotifications(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ResidentNotification::class);
     }
 
     public function isAdmin(): bool
@@ -86,6 +93,13 @@ class User extends Authenticatable
     {
         if (! $this->isAdmin()) {
             return false;
+        }
+
+        // Modul RBAC (kelola akun admin lain) HANYA boleh diakses super admin,
+        // gak peduli admin_access_type-nya full/read_only/custom sekalipun.
+        // Ini mencegah admin biasa (Ketua RT, sekretaris, dst) ngedit akses dirinya sendiri atau admin lain.
+        if ($module === 'admin_accounts') {
+            return $this->is_super_admin;
         }
 
         $type = $this->admin_access_type ?? 'full';
