@@ -157,16 +157,30 @@
                     </div>
                 </div>
 
-                <div class="w-9 h-9 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-sm font-medium">
-                    {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
-                </div>
-                <span class="text-sm text-slate-600 hidden sm:block">{{ auth()->user()->name }}</span>
-                <form method="POST" action="{{ route('logout') }}" class="hidden md:block">
-                    @csrf
-                    <button class="flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-600 ml-2">
-                        <i class="ti ti-logout text-base"></i> Keluar
+                <div class="relative">
+                    <button onclick="document.getElementById('avatarDropdown').classList.toggle('hidden')"
+                            class="flex items-center gap-2">
+                        <div class="w-9 h-9 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-sm font-medium">
+                            {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+                        </div>
+                        <span class="text-sm text-slate-600 hidden sm:block">{{ auth()->user()->name }}</span>
                     </button>
-                </form>
+                    <div id="avatarDropdown" class="hidden absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-lg z-20 overflow-hidden">
+                        <div class="px-4 py-3 border-b border-slate-100">
+                            <p class="text-sm font-medium text-slate-700">{{ auth()->user()->name }}</p>
+                            <p class="text-xs text-slate-400">{{ auth()->user()->email }}</p>
+                        </div>
+                        <a href="{{ route('admin.profile.edit') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50">
+                            <i class="ti ti-key"></i> Ganti Password
+                        </a>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button class="flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-slate-50 w-full">
+                                <i class="ti ti-logout"></i> Keluar
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </header>
 

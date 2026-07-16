@@ -20,8 +20,8 @@
             @endif
 
             @if ($payment->proof_image)
-                <a href="{{ Storage::url($payment->proof_image) }}" target="_blank" class="block mb-3">
-                    <img src="{{ Storage::url($payment->proof_image) }}" alt="Bukti transfer" class="max-h-64 rounded-lg border border-slate-200">
+                <a href="{{ route('admin.payment-confirmations.view-proof', $payment) }}" target="_blank" class="block mb-3">
+                    <img src="{{ route('admin.payment-confirmations.view-proof', $payment) }}" alt="Bukti transfer" class="max-h-64 rounded-lg border border-slate-200">
                 </a>
             @endif
 

@@ -14,7 +14,7 @@
 
     <div>
         <label class="block text-sm text-slate-600 mb-1.5">Email</label>
-        <input type="email" name="email" value="{{ old('email', auth()->user()->email) }}" required class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm">
+        <input type="email" name="email" value="{{ old('email', auth()->user()->email) }}" placeholder="Opsional, buat reminder" class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm">
         @error('email') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
     </div>
 

@@ -64,6 +64,18 @@
                 <input type="text" name="phone" value="{{ old('phone') }}" required
                     class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-600/20 focus:border-brand-600">
             </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-sm text-slate-600 mb-1.5">Blok</label>
+                    <input type="text" name="block" value="{{ old('block') }}" placeholder="Mis. B" maxlength="5" required
+                        class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-600/20 focus:border-brand-600">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-600 mb-1.5">No. Rumah</label>
+                    <input type="number" name="house_number" value="{{ old('house_number') }}" placeholder="Mis. 17" min="1" max="99" required
+                        class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-600/20 focus:border-brand-600">
+                </div>
+            </div>
             <div>
                 <label class="block text-sm text-slate-600 mb-1.5">NIK (16 digit)</label>
                 <input type="text" name="nik" value="{{ old('nik') }}" maxlength="16" inputmode="numeric" required

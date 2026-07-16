@@ -16,9 +16,9 @@
     @csrf
 
     <div>
-        <label class="block text-sm text-slate-600 mb-1.5">Bukti transfer</label>
-        <input type="file" name="proof_image" accept="image/*" capture="environment" required class="w-full text-sm">
-        <p class="text-xs text-slate-400 mt-1">Foto/screenshot bukti transfer IPL bulan ini.</p>
+        <label class="block text-sm text-slate-600 mb-1.5">Bukti transfer <span class="text-red-500">*</span></label>
+        <input type="file" name="proof_image" accept="image/*" required class="w-full text-sm">
+        <p class="text-xs text-slate-400 mt-1">Wajib diisi. Bisa pilih foto dari galeri atau ambil foto baru.</p>
     </div>
 
     <div>

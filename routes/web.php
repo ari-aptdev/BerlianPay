@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminAccountController;
+use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\HouseController;
 use App\Http\Controllers\Admin\IplRateController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredResidentController;
 use App\Http\Controllers\Resident\DashboardController as ResidentDashboardController;
+use App\Http\Controllers\Resident\NotificationController as ResidentNotificationController;
 use App\Http\Controllers\Resident\PaymentController as ResidentPaymentController;
 use App\Http\Controllers\Resident\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -36,11 +38,15 @@ Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
+    Route::get('profile', [AdminProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('profile', [AdminProfileController::class, 'update'])->name('profile.update');
+
     Route::resource('houses', HouseController::class)->except(['show']);
     Route::resource('ipl-rates', IplRateController::class)->except(['show']);
     Route::resource('payments', AdminPaymentController::class)->except(['show']);
 
     Route::get('payment-confirmations', [PaymentConfirmationController::class, 'index'])->name('payment-confirmations.index');
+    Route::get('payment-confirmations/{payment}/proof', [PaymentConfirmationController::class, 'viewProof'])->name('payment-confirmations.view-proof');
     Route::patch('payment-confirmations/{payment}/approve', [PaymentConfirmationController::class, 'approve'])->name('payment-confirmations.approve');
     Route::patch('payment-confirmations/{payment}/reject', [PaymentConfirmationController::class, 'reject'])->name('payment-confirmations.reject');
 
@@ -78,6 +84,8 @@ Route::middleware(['auth', 'role:warga'])->prefix('resident')->name('resident.')
     Route::get('payments/{payment}/download-proof', [ResidentPaymentController::class, 'downloadProof'])->name('payments.download-proof');
     Route::get('payments/{payment}/confirm', [ResidentPaymentController::class, 'confirmForm'])->name('payments.confirm-form');
     Route::post('payments/{payment}/confirm', [ResidentPaymentController::class, 'confirmSubmit'])->name('payments.confirm-submit');
+
+    Route::post('notifications/mark-read', [ResidentNotificationController::class, 'markRead'])->name('notifications.mark-read');
 
     Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('profile', [ProfileController::class, 'update'])->name('profile.update');

@@ -1,9 +1,32 @@
 @extends('layouts.admin')
 
 @section('content')
-<h2 class="text-lg font-medium text-slate-900 mb-6">Pengaturan reminder</h2>
+<h2 class="text-lg font-medium text-slate-900 mb-6">Pengaturan</h2>
+
+<div class="bg-white rounded-xl border border-slate-200 p-6 max-w-xl mb-6">
+    <p class="text-sm font-medium text-slate-700 mb-4">Keamanan Sesi Login</p>
+    <form method="POST" action="{{ route('admin.settings.reminder.update') }}">
+        @csrf @method('PUT')
+
+        <div class="mb-4">
+            <label class="block text-sm text-slate-600 mb-1.5">Auto-logout setelah tidak aktif (menit)</label>
+            <input type="number" name="session_timeout_minutes" value="{{ old('session_timeout_minutes', $settings['session_timeout_minutes']) }}" min="1" max="1440" required
+                class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm">
+            <p class="text-xs text-slate-400 mt-1">Semua akun (admin & warga) otomatis logout kalau tidak ada aktivitas selama sekian menit.</p>
+        </div>
+
+        <input type="hidden" name="due_date" value="{{ $settings['due_date'] }}">
+        <input type="hidden" name="reminder_h_minus" value="{{ $settings['reminder_h_minus'] }}">
+        <input type="hidden" name="followup_dates" value="{{ $settings['followup_dates'] }}">
+        <input type="hidden" name="email_reminder_enabled" value="{{ $settings['email_reminder_enabled'] }}">
+        <input type="hidden" name="wa_reminder_enabled" value="{{ $settings['wa_reminder_enabled'] }}">
+
+        <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white text-sm px-4 py-2.5 rounded-lg">Simpan durasi sesi</button>
+    </form>
+</div>
 
 <div class="bg-white rounded-xl border border-slate-200 p-6 max-w-xl">
+    <p class="text-sm font-medium text-slate-700 mb-4">Reminder Otomatis</p>
     <form method="POST" action="{{ route('admin.settings.reminder.update') }}">
         @csrf @method('PUT')
 
@@ -39,7 +62,9 @@
             <p class="text-xs text-slate-400">Reminder WA baru akan benar-benar terkirim setelah <code>WA_API_KEY</code> diisi di file <code>.env</code> (lihat README).</p>
         </div>
 
-        <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white text-sm px-4 py-2.5 rounded-lg">Simpan pengaturan</button>
+        <input type="hidden" name="session_timeout_minutes" value="{{ $settings['session_timeout_minutes'] }}">
+
+        <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white text-sm px-4 py-2.5 rounded-lg">Simpan pengaturan reminder</button>
     </form>
 </div>
 @endsection

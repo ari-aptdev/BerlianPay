@@ -67,6 +67,35 @@
                 <i class="ti ti-sun text-lg dark:hidden"></i>
                 <i class="ti ti-moon text-lg hidden dark:inline"></i>
             </button>
+
+            @php
+                $unreadNotifs = auth()->user()->residentNotifications()->whereNull('read_at')->latest()->limit(10)->get();
+                $unreadCount = $unreadNotifs->count();
+            @endphp
+            <div class="relative">
+                <button onclick="document.getElementById('residentNotifDropdown').classList.toggle('hidden'); fetch('{{ route('resident.notifications.mark-read') }}', {method:'POST', headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}'}});"
+                        class="text-slate-400 relative">
+                    <i class="ti ti-bell text-lg"></i>
+                    @if ($unreadCount > 0)
+                        <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">{{ $unreadCount > 9 ? '9+' : $unreadCount }}</span>
+                    @endif
+                </button>
+                <div id="residentNotifDropdown" class="hidden absolute right-0 mt-2 w-72 bg-white border border-slate-200 rounded-xl shadow-lg z-20 overflow-hidden">
+                    <div class="px-4 py-2 border-b border-slate-100 text-sm font-medium text-slate-700">Notifikasi</div>
+                    <div class="max-h-80 overflow-y-auto">
+                        @forelse (auth()->user()->residentNotifications()->latest()->limit(10)->get() as $notif)
+                            <a href="{{ $notif->url ?? '#' }}" class="block px-4 py-3 hover:bg-slate-50 border-b border-slate-100 {{ $notif->read_at ? '' : 'bg-brand-50/40' }}">
+                                <p class="text-sm font-medium text-slate-700">{{ $notif->title }}</p>
+                                <p class="text-xs text-slate-500 mt-0.5">{{ $notif->message }}</p>
+                                <p class="text-[11px] text-slate-400 mt-1">{{ $notif->created_at->diffForHumans() }}</p>
+                            </a>
+                        @empty
+                            <p class="px-4 py-4 text-sm text-slate-400">Belum ada notifikasi.</p>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
             <a href="{{ route('resident.profile.edit') }}" class="text-slate-400">
                 <i class="ti ti-user text-lg"></i>
             </a>

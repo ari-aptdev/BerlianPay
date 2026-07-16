@@ -27,6 +27,9 @@
         .dark .text-slate-400 { color: #64748b; }
         .dark .bg-red-50 { background-color: rgba(239,68,68,0.15); }
         .dark .text-red-700 { color: #f87171; }
+        .dark .bg-amber-50 { background-color: rgba(245,158,11,0.15); }
+        .dark .text-amber-700 { color: #fbbf24; }
+        .dark .border-amber-200 { border-color: rgba(245,158,11,0.3); }
         .dark input {
             background-color: #1e293b;
             border-color: #334155 !important;
@@ -46,6 +49,11 @@
     </div>
 
     <div class="bg-white border border-slate-200 rounded-2xl p-6">
+        @if (session('idle_timeout'))
+            <div class="mb-4 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg px-4 py-3 text-sm">
+                <i class="ti ti-clock"></i> {{ session('idle_timeout') }}
+            </div>
+        @endif
         @if ($errors->any())
             <div class="mb-4 bg-red-50 text-red-700 border border-red-200 rounded-lg px-4 py-3 text-sm">
                 {{ $errors->first() }}
