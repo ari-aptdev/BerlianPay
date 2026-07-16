@@ -37,6 +37,15 @@
     </div>
 </div>
 
+<div class="mb-6">
+    <label class="block text-sm text-slate-600 mb-1.5">Status IPL</label>
+    <select name="ipl_status" class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm">
+        <option value="non_rukem" {{ old('ipl_status', $house->ipl_status ?? 'non_rukem') === 'non_rukem' ? 'selected' : '' }}>Non-Rukem</option>
+        <option value="rukem" {{ old('ipl_status', $house->ipl_status ?? 'non_rukem') === 'rukem' ? 'selected' : '' }}>Rukem</option>
+    </select>
+    <p class="text-xs text-slate-400 mt-1">Menentukan besaran iuran bulanan. Diubah manual di sini gak otomatis kena biaya pendaftaran (biaya pendaftaran cuma berlaku pas warga daftar mandiri milih Rukem).</p>
+</div>
+
 <label class="flex items-center gap-2 text-sm text-slate-600 mb-6">
     <input type="checkbox" name="is_active" value="1" {{ old('is_active', $house->is_active ?? true) ? 'checked' : '' }} class="rounded border-slate-300">
     Rumah aktif

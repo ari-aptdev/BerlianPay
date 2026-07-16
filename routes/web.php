@@ -42,7 +42,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::patch('profile', [AdminProfileController::class, 'update'])->name('profile.update');
 
     Route::resource('houses', HouseController::class)->except(['show']);
-    Route::resource('ipl-rates', IplRateController::class)->except(['show']);
+    Route::get('ipl-rates', [IplRateController::class, 'edit'])->name('ipl-rates.index');
+    Route::put('ipl-rates', [IplRateController::class, 'update'])->name('ipl-rates.update');
     Route::resource('payments', AdminPaymentController::class)->except(['show']);
 
     Route::get('payment-confirmations', [PaymentConfirmationController::class, 'index'])->name('payment-confirmations.index');

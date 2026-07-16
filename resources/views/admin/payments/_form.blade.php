@@ -7,10 +7,11 @@
         <option value="">Pilih rumah</option>
         @foreach ($houses as $house)
             <option value="{{ $house->id }}" @selected(old('house_id', $payment->house_id ?? null) == $house->id)>
-                {{ $house->fullLabel() }} - {{ $house->owner_name }}
+                {{ $house->fullLabel() }} - {{ $house->owner_name }} ({{ $house->isRukem() ? 'Rukem' : 'Non-Rukem' }})
             </option>
         @endforeach
     </select>
+    <p class="text-xs text-slate-400 mt-1">Tarif otomatis mengikuti status Rukem/Non-Rukem rumah ini, tapi nominal di bawah tetap bisa diedit manual.</p>
     @error('house_id') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
 </div>
 

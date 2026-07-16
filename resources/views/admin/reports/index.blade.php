@@ -30,8 +30,8 @@
     <p class="text-2xl font-semibold text-slate-900">Rp {{ number_format($totalPaid, 0, ',', '.') }}</p>
 </div>
 
-<div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-    <table class="w-full text-sm">
+<div class="bg-white rounded-xl border border-slate-200 overflow-x-auto">
+    <table class="w-full text-sm min-w-[640px]">
         <thead class="bg-slate-50 text-slate-500">
             <tr>
                 <th class="text-left px-4 py-2 font-normal">Rumah</th>

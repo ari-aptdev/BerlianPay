@@ -17,6 +17,7 @@
         } } } } }
     </script>
     <style>
+        html, body { overflow-x: hidden; max-width: 100vw; }
         .dark body { background-color: #020617; }
         .dark .bg-slate-50 { background-color: #0f172a; }
         .dark .bg-white { background-color: #1e293b; }
@@ -82,6 +83,15 @@
                     class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-600/20 focus:border-brand-600">
                 <p class="text-xs text-slate-400 mt-1">Username & password login akan dibuatkan otomatis dan ditampilkan setelah kamu daftar.</p>
             </div>
+
+            <label class="flex items-start gap-3 border border-slate-200 rounded-lg p-3 cursor-pointer">
+                <input type="checkbox" name="wants_rukem" value="1" {{ old('wants_rukem') ? 'checked' : '' }} class="mt-0.5 rounded border-slate-300">
+                <span>
+                    <span class="block text-sm font-medium text-slate-700">Daftar sebagai anggota Rukem</span>
+                    <span class="block text-xs text-slate-400">Iuran bulanan sedikit lebih besar, tapi ada biaya pendaftaran satu kali Rp {{ number_format($registrationFee, 0, ',', '.') }}.</span>
+                </span>
+            </label>
+
             <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white rounded-lg py-2.5 text-sm font-medium transition">
                 Daftar
             </button>

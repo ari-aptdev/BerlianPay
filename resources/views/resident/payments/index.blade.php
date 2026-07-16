@@ -22,7 +22,20 @@
                     <span class="text-sm font-medium text-slate-800">{{ $bulanLabel[$row['month']] }} {{ $year }}</span>
                     <span class="{{ $style['bg'] }} {{ $style['text'] }} text-xs px-2.5 py-1 rounded-md">{{ $style['label'] }}</span>
                 </div>
-                <p class="text-sm text-slate-500 mt-1">{{ $row['house']->fullLabel() }} &middot; Rp {{ number_format($payment->amount, 0, ',', '.') }}</p>
+                <p class="text-sm text-slate-500 mt-1">{{ $row['house']->fullLabel() }} &middot; <span class="text-[11px] uppercase text-slate-400">{{ $row['house']->isRukem() ? 'Rukem' : 'Non-Rukem' }}</span></p>
+
+                <div class="mt-2 pt-2 border-t border-slate-100 space-y-1">
+                    @foreach ($payment->resolvedBreakdown() as $label => $amount)
+                        <div class="flex justify-between text-xs text-slate-400">
+                            <span>{{ $label }}</span>
+                            <span>Rp {{ number_format($amount, 0, ',', '.') }}</span>
+                        </div>
+                    @endforeach
+                    <div class="flex justify-between text-xs font-medium text-slate-600 pt-1">
+                        <span>Total</span>
+                        <span>Rp {{ number_format($payment->amount, 0, ',', '.') }}</span>
+                    </div>
+                </div>
             </a>
         @else
             <div class="border border-slate-100 rounded-xl p-4 opacity-60">
@@ -35,4 +48,20 @@
         @endif
     @endforeach
 </div>
+
+@if ($otherPayments->isNotEmpty())
+    <h3 class="text-sm font-medium text-slate-700 mt-6 mb-3">Tagihan Lain-lain</h3>
+    <div class="space-y-3">
+        @foreach ($otherPayments as $payment)
+            @php $style = $statusStyle[$payment->status]; @endphp
+            <a href="{{ route('resident.payments.show', $payment) }}" class="block border border-slate-200 rounded-xl p-4 hover:border-brand-200">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-slate-800">{{ $payment->displayLabel() }}</span>
+                    <span class="{{ $style['bg'] }} {{ $style['text'] }} text-xs px-2.5 py-1 rounded-md">{{ $style['label'] }}</span>
+                </div>
+                <p class="text-sm text-slate-500 mt-1">{{ $payment->house->fullLabel() }} &middot; Rp {{ number_format($payment->amount, 0, ',', '.') }}</p>
+            </a>
+        @endforeach
+    </div>
+@endif
 @endsection

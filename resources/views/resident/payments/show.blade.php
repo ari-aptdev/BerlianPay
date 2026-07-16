@@ -24,25 +24,35 @@
     <table class="w-full text-sm mb-4">
         <tr class="border-t border-slate-100">
             <td class="py-2 text-slate-500">Rumah</td>
-            <td class="py-2 text-right">{{ $payment->house->fullLabel() }}</td>
+            <td class="py-2 text-right">{{ $payment->house->fullLabel() }} <span class="text-xs text-slate-400">({{ $payment->house->isRukem() ? 'Rukem' : 'Non-Rukem' }})</span></td>
         </tr>
         <tr class="border-t border-slate-100">
             <td class="py-2 text-slate-500">Nama</td>
             <td class="py-2 text-right">{{ $payment->house->owner_name }}</td>
         </tr>
         <tr class="border-t border-slate-100">
-            <td class="py-2 text-slate-500">Periode</td>
-            <td class="py-2 text-right">{{ $payment->periodLabel() }}</td>
-        </tr>
-        <tr class="border-t border-slate-100">
-            <td class="py-2 text-slate-500">Nominal</td>
-            <td class="py-2 text-right font-medium">Rp {{ number_format($payment->amount, 0, ',', '.') }}</td>
+            <td class="py-2 text-slate-500">Keterangan</td>
+            <td class="py-2 text-right">{{ $payment->displayLabel() }}</td>
         </tr>
         <tr class="border-t border-slate-100">
             <td class="py-2 text-slate-500">Tanggal bayar</td>
             <td class="py-2 text-right">{{ $payment->paid_at?->format('d M Y') ?? '-' }}</td>
         </tr>
     </table>
+
+    <div class="border-t border-slate-100 pt-3 mb-4">
+        <p class="text-sm text-slate-500 mb-2">Rincian iuran</p>
+        @foreach ($payment->resolvedBreakdown() as $label => $amount)
+            <div class="flex justify-between text-sm py-1">
+                <span class="text-slate-500">{{ $label }}</span>
+                <span class="text-slate-700">Rp {{ number_format($amount, 0, ',', '.') }}</span>
+            </div>
+        @endforeach
+        <div class="flex justify-between text-sm font-semibold pt-2 mt-1 border-t border-slate-200">
+            <span>Total</span>
+            <span>Rp {{ number_format($payment->amount, 0, ',', '.') }}</span>
+        </div>
+    </div>
 
     @if ($payment->signature)
         <div class="border-t border-slate-100 pt-4 mb-4">

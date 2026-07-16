@@ -4,26 +4,45 @@
 <h2 class="text-lg font-medium text-slate-900 mb-2">Setujui akun warga</h2>
 <p class="text-sm text-slate-500 mb-6">{{ $resident->name }} &middot; NIK {{ $resident->nik }} &middot; {{ $resident->phone }}</p>
 
-<div class="bg-white rounded-xl border border-slate-200 p-6 max-w-xl">
+<div class="bg-white rounded-xl border border-slate-200 p-6 max-w-lg">
+    <div class="bg-brand-50 text-brand-700 text-xs rounded-lg px-3 py-2 mb-4">
+        Data di bawah ini diisi warga sendiri pas daftar. Cek lagi sebelum di-approve — data rumah baru akan benar-benar
+        dibuat di "Data Warga & Rumah" setelah kamu klik Setujui.
+    </div>
+
     <form method="POST" action="{{ route('admin.residents.approve', $resident) }}">
         @csrf
 
-        <div class="mb-6">
-            <label class="block text-sm text-slate-600 mb-1.5">Assign ke rumah</label>
-            @if (count($assignedHouseIds))
-                <p class="text-xs text-green-600 mb-2"><i class="ti ti-check"></i> Rumah otomatis kedeteksi lewat NIK, cek lagi kalau perlu.</p>
-            @else
-                <p class="text-xs text-amber-600 mb-2"><i class="ti ti-alert-circle"></i> Belum ada rumah yang cocok otomatis lewat NIK, pilih manual di bawah.</p>
-            @endif
-            <div class="border border-slate-200 rounded-lg p-3 max-h-60 overflow-y-auto space-y-1.5">
-                @foreach ($houses as $house)
-                    <label class="flex items-center gap-2 text-sm">
-                        <input type="checkbox" name="house_ids[]" value="{{ $house->id }}" {{ in_array($house->id, $assignedHouseIds) ? 'checked' : '' }} class="rounded border-slate-300">
-                        {{ $house->fullLabel() }} - {{ $house->owner_name }} ({{ $house->nik }})
-                    </label>
-                @endforeach
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+                <label class="block text-sm text-slate-600 mb-1.5">Blok</label>
+                <input type="text" name="block" value="{{ old('block', $resident->pending_block) }}" required
+                    class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm">
+                @error('block') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
             </div>
-            @error('house_ids') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+            <div>
+                <label class="block text-sm text-slate-600 mb-1.5">No. Rumah</label>
+                <input type="text" name="house_number" value="{{ old('house_number', $resident->pending_house_number) }}" required
+                    class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm">
+                @error('house_number') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-sm text-slate-600 mb-2">Status IPL</label>
+            <div class="space-y-2">
+                <label class="flex items-center gap-3 border border-slate-200 rounded-lg p-3 cursor-pointer">
+                    <input type="radio" name="ipl_status" value="non_rukem" {{ old('ipl_status', $resident->pending_wants_rukem ? 'rukem' : 'non_rukem') === 'non_rukem' ? 'checked' : '' }}>
+                    <span class="text-sm text-slate-700">Non-Rukem</span>
+                </label>
+                <label class="flex items-center gap-3 border border-slate-200 rounded-lg p-3 cursor-pointer">
+                    <input type="radio" name="ipl_status" value="rukem" {{ old('ipl_status', $resident->pending_wants_rukem ? 'rukem' : 'non_rukem') === 'rukem' ? 'checked' : '' }}>
+                    <span class="text-sm text-slate-700">Rukem</span>
+                </label>
+            </div>
+            @if ($resident->pending_wants_rukem)
+                <p class="text-xs text-amber-600 mt-2"><i class="ti ti-info-circle"></i> Warga ini pilih ikut Rukem pas daftar — kalau disetujui sebagai Rukem, tagihan biaya pendaftaran otomatis dibuat.</p>
+            @endif
         </div>
 
         <div class="flex gap-3">

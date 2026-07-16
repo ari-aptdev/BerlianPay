@@ -1,17 +1,17 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="flex items-center justify-between mb-6">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
     <h2 class="text-lg font-medium text-slate-900">Akun Admin & RBAC</h2>
     @if (auth()->user()->canAccess('admin_accounts', 'edit'))
-        <a href="{{ route('admin.admin-accounts.create') }}" class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm px-4 py-2 rounded-lg">
+        <a href="{{ route('admin.admin-accounts.create') }}" class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm px-4 py-2 rounded-lg w-full sm:w-auto">
             <i class="ti ti-plus"></i> Buat akun admin
         </a>
     @endif
 </div>
 
-<div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-    <table class="w-full text-sm">
+<div class="bg-white rounded-xl border border-slate-200 overflow-x-auto">
+    <table class="w-full text-sm min-w-[640px]">
         <thead class="bg-slate-50 text-slate-500">
             <tr>
                 <th class="text-left px-4 py-2 font-normal">Nama</th>

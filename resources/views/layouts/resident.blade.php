@@ -17,6 +17,7 @@
         } } } } }
     </script>
     <style>
+        html, body { overflow-x: hidden; max-width: 100vw; }
         .dark body { background-color: #020617; }
         .dark .bg-slate-50 { background-color: #0f172a; }
         .dark .bg-white { background-color: #1e293b; }
@@ -54,16 +55,16 @@
 <body class="bg-slate-50 text-slate-800 min-h-screen">
 
 <header class="bg-white border-b border-slate-200 sticky top-0 z-10">
-    <div class="max-w-md mx-auto px-4 h-14 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-            <div class="w-7 h-7 rounded-md bg-brand-600 flex items-center justify-center text-white">
+    <div class="max-w-md mx-auto px-3 sm:px-4 h-14 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2 min-w-0">
+            <div class="w-7 h-7 rounded-md bg-brand-600 flex items-center justify-center text-white flex-shrink-0">
                 <i class="ti ti-diamond text-sm"></i>
             </div>
-            <span class="font-medium text-sm text-slate-900">BerlianPay</span>
+            <span class="font-medium text-sm text-slate-900 truncate">BerlianPay</span>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <button onclick="document.documentElement.classList.toggle('dark'); localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';"
-                    class="text-slate-400">
+                    class="text-slate-400 p-1">
                 <i class="ti ti-sun text-lg dark:hidden"></i>
                 <i class="ti ti-moon text-lg hidden dark:inline"></i>
             </button>
@@ -74,13 +75,13 @@
             @endphp
             <div class="relative">
                 <button onclick="document.getElementById('residentNotifDropdown').classList.toggle('hidden'); fetch('{{ route('resident.notifications.mark-read') }}', {method:'POST', headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}'}});"
-                        class="text-slate-400 relative">
+                        class="text-slate-400 relative p-1">
                     <i class="ti ti-bell text-lg"></i>
                     @if ($unreadCount > 0)
-                        <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">{{ $unreadCount > 9 ? '9+' : $unreadCount }}</span>
+                        <span class="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">{{ $unreadCount > 9 ? '9+' : $unreadCount }}</span>
                     @endif
                 </button>
-                <div id="residentNotifDropdown" class="hidden absolute right-0 mt-2 w-72 bg-white border border-slate-200 rounded-xl shadow-lg z-20 overflow-hidden">
+                <div id="residentNotifDropdown" class="hidden absolute right-0 mt-2 w-72 max-w-[85vw] bg-white border border-slate-200 rounded-xl shadow-lg z-20 overflow-hidden">
                     <div class="px-4 py-2 border-b border-slate-100 text-sm font-medium text-slate-700">Notifikasi</div>
                     <div class="max-h-80 overflow-y-auto">
                         @forelse (auth()->user()->residentNotifications()->latest()->limit(10)->get() as $notif)
@@ -96,12 +97,12 @@
                 </div>
             </div>
 
-            <a href="{{ route('resident.profile.edit') }}" class="text-slate-400">
+            <a href="{{ route('resident.profile.edit') }}" class="text-slate-400 p-1">
                 <i class="ti ti-user text-lg"></i>
             </a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button class="text-slate-400 text-sm flex items-center gap-1.5">
+                <button class="text-slate-400 text-sm flex items-center gap-1.5 p-1">
                     <i class="ti ti-logout"></i>
                 </button>
             </form>

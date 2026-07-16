@@ -17,6 +17,7 @@
         } } } } }
     </script>
     <style>
+        html, body { overflow-x: hidden; max-width: 100vw; }
         .dark body { background-color: #020617; }
         .dark .bg-slate-50 { background-color: #0f172a; }
         .dark .bg-white { background-color: #1e293b; }

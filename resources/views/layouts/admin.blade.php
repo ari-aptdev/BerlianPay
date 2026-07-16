@@ -28,6 +28,7 @@
         }
     </script>
     <style>
+        html, body { overflow-x: hidden; max-width: 100vw; }
         /* Override universal dark mode - berlaku ke semua halaman tanpa perlu ubah tiap view */
         .dark body { background-color: #020617; }
         .dark .bg-slate-50 { background-color: #0f172a; }
@@ -114,29 +115,29 @@
     </aside>
 
     <div class="flex-1 flex flex-col min-w-0">
-        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8">
-            <div class="flex items-center gap-3">
-                <button onclick="document.getElementById('mobileNav').classList.toggle('hidden')" class="md:hidden text-slate-500">
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between gap-2 px-3 sm:px-4 md:px-8">
+            <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                <button onclick="document.getElementById('mobileNav').classList.toggle('hidden')" class="md:hidden text-slate-500 flex-shrink-0">
                     <i class="ti ti-menu-2 text-xl"></i>
                 </button>
-                <h1 class="font-medium text-slate-900">{{ $title ?? 'Dashboard' }}</h1>
+                <h1 class="font-medium text-slate-900 truncate text-sm sm:text-base">{{ $title ?? 'Dashboard' }}</h1>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
                 <button onclick="document.documentElement.classList.toggle('dark'); localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';"
-                        class="w-9 h-9 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100">
-                    <i class="ti ti-sun text-lg dark:hidden"></i>
-                    <i class="ti ti-moon text-lg hidden dark:inline"></i>
+                        class="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 flex-shrink-0">
+                    <i class="ti ti-sun text-base sm:text-lg dark:hidden"></i>
+                    <i class="ti ti-moon text-base sm:text-lg hidden dark:inline"></i>
                 </button>
 
-                <div class="relative">
+                <div class="relative flex-shrink-0">
                     <button onclick="document.getElementById('notifDropdown').classList.toggle('hidden')"
-                            class="w-9 h-9 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 relative">
-                        <i class="ti ti-bell text-lg"></i>
+                            class="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 relative">
+                        <i class="ti ti-bell text-base sm:text-lg"></i>
                         @if ($totalNotif > 0)
-                            <span class="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">{{ $totalNotif > 9 ? '9+' : $totalNotif }}</span>
+                            <span class="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">{{ $totalNotif > 9 ? '9+' : $totalNotif }}</span>
                         @endif
                     </button>
-                    <div id="notifDropdown" class="hidden absolute right-0 mt-2 w-72 bg-white border border-slate-200 rounded-xl shadow-lg z-20 overflow-hidden">
+                    <div id="notifDropdown" class="hidden absolute right-0 mt-2 w-72 max-w-[85vw] bg-white border border-slate-200 rounded-xl shadow-lg z-20 overflow-hidden">
                         <div class="px-4 py-2 border-b border-slate-100 text-sm font-medium text-slate-700">Notifikasi</div>
                         @if ($totalNotif === 0)
                             <p class="px-4 py-4 text-sm text-slate-400">Tidak ada notifikasi baru.</p>
@@ -157,15 +158,15 @@
                     </div>
                 </div>
 
-                <div class="relative">
+                <div class="relative flex-shrink-0">
                     <button onclick="document.getElementById('avatarDropdown').classList.toggle('hidden')"
                             class="flex items-center gap-2">
-                        <div class="w-9 h-9 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-sm font-medium">
+                        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs sm:text-sm font-medium">
                             {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
                         </div>
                         <span class="text-sm text-slate-600 hidden sm:block">{{ auth()->user()->name }}</span>
                     </button>
-                    <div id="avatarDropdown" class="hidden absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-lg z-20 overflow-hidden">
+                    <div id="avatarDropdown" class="hidden absolute right-0 mt-2 w-56 max-w-[85vw] bg-white border border-slate-200 rounded-xl shadow-lg z-20 overflow-hidden">
                         <div class="px-4 py-3 border-b border-slate-100">
                             <p class="text-sm font-medium text-slate-700">{{ auth()->user()->name }}</p>
                             <p class="text-xs text-slate-400">{{ auth()->user()->email }}</p>

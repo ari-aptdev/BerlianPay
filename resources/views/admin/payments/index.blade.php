@@ -1,9 +1,9 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="flex items-center justify-between mb-6">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
     <h2 class="text-lg font-medium text-slate-900">Pencatatan pembayaran</h2>
-    <a href="{{ route('admin.payments.create') }}" class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm px-4 py-2 rounded-lg">
+    <a href="{{ route('admin.payments.create') }}" class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm px-4 py-2 rounded-lg w-full sm:w-auto">
         <i class="ti ti-plus"></i> Catat pembayaran
     </a>
 </div>
@@ -25,8 +25,8 @@
     <button class="bg-slate-100 text-slate-600 text-sm px-4 py-2 rounded-lg">Filter</button>
 </form>
 
-<div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-    <table class="w-full text-sm">
+<div class="bg-white rounded-xl border border-slate-200 overflow-x-auto">
+    <table class="w-full text-sm min-w-[640px]">
         <thead class="bg-slate-50 text-slate-500">
             <tr>
                 <th class="text-left px-4 py-2 font-normal">Rumah</th>

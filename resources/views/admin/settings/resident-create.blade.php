@@ -44,7 +44,7 @@
                 @foreach ($houses as $house)
                     <label class="flex items-center gap-2 text-sm">
                         <input type="checkbox" name="house_ids[]" value="{{ $house->id }}" class="rounded border-slate-300">
-                        {{ $house->fullLabel() }} - {{ $house->owner_name }}
+                        {{ $house->fullLabel() }} - {{ $house->owner_name }} ({{ $house->isRukem() ? 'Rukem' : 'Non-Rukem' }})
                     </label>
                 @endforeach
             </div>

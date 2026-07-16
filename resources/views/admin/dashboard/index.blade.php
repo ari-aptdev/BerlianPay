@@ -1,12 +1,12 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="flex items-center justify-between mb-6">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
     <div>
         <h2 class="text-lg font-medium text-slate-900">Ringkasan</h2>
         <p class="text-sm text-slate-500">{{ now()->translatedFormat('F Y') }}</p>
     </div>
-    <a href="{{ route('admin.payments.create') }}" class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm px-4 py-2 rounded-lg">
+    <a href="{{ route('admin.payments.create') }}" class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm px-4 py-2 rounded-lg w-full sm:w-auto">
         <i class="ti ti-plus"></i> Catat pembayaran
     </a>
 </div>
@@ -31,9 +31,9 @@
     <canvas id="trendChart" height="80"></canvas>
 </div>
 
-<div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+<div class="bg-white rounded-xl border border-slate-200 overflow-x-auto">
     <p class="text-sm font-medium text-slate-700 px-4 py-3 border-b border-slate-100">Pembayaran terbaru</p>
-    <table class="w-full text-sm">
+    <table class="w-full text-sm min-w-[640px]">
         <thead class="bg-slate-50 text-slate-500">
             <tr>
                 <th class="text-left px-4 py-2 font-normal">Rumah</th>

@@ -53,8 +53,8 @@
     </div>
 </div>
 
-<div id="customPermissionsBox" class="mb-6 border border-slate-200 rounded-lg overflow-hidden {{ $currentType === 'custom' ? '' : 'hidden' }}">
-    <table class="w-full text-sm">
+<div id="customPermissionsBox" class="mb-6 border border-slate-200 rounded-lg overflow-x-auto {{ $currentType === 'custom' ? '' : 'hidden' }}">
+    <table class="w-full text-sm min-w-[420px]">
         <thead class="bg-slate-50 text-slate-500">
             <tr>
                 <th class="text-left px-4 py-2 font-normal">Menu</th>
