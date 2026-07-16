@@ -3,52 +3,43 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreIplRateRequest;
-use App\Models\IplRate;
+use App\Models\Setting;
+use App\Support\IplPricing;
+use Illuminate\Http\Request;
 
 class IplRateController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth', 'permission:ipl_rates,view'])->only(['index']);
-        $this->middleware(['auth', 'permission:ipl_rates,edit'])->only(['create', 'store', 'edit', 'update', 'destroy']);
+        $this->middleware(['auth', 'permission:ipl_rates,view'])->only(['edit']);
+        $this->middleware(['auth', 'permission:ipl_rates,edit'])->only(['update']);
     }
 
-    public function index()
+    public function edit()
     {
-        $rates = IplRate::orderByDesc('effective_date')->paginate(15);
+        $components = IplPricing::components();
+        $registrationFee = IplPricing::registrationFee();
 
-        return view('admin.ipl-rates.index', compact('rates'));
+        $nonRukemBreakdown = IplPricing::breakdownFor('non_rukem');
+        $rukemBreakdown = IplPricing::breakdownFor('rukem');
+
+        return view('admin.ipl-rates.index', compact('components', 'registrationFee', 'nonRukemBreakdown', 'rukemBreakdown'));
     }
 
-    public function create()
+    public function update(Request $request)
     {
-        return view('admin.ipl-rates.create');
-    }
+        $validated = $request->validate([
+            'ipl_kas' => ['required', 'integer', 'min:0'],
+            'ipl_kebersihan' => ['required', 'integer', 'min:0'],
+            'ipl_keamanan' => ['required', 'integer', 'min:0'],
+            'ipl_rukem_tambahan' => ['required', 'integer', 'min:0'],
+            'rukem_registration_fee' => ['required', 'integer', 'min:0'],
+        ]);
 
-    public function store(StoreIplRateRequest $request)
-    {
-        IplRate::create($request->validated());
+        foreach ($validated as $key => $value) {
+            Setting::set($key, (string) $value);
+        }
 
-        return redirect()->route('admin.ipl-rates.index')->with('success', 'Tarif IPL berhasil ditambahkan.');
-    }
-
-    public function edit(IplRate $iplRate)
-    {
-        return view('admin.ipl-rates.edit', compact('iplRate'));
-    }
-
-    public function update(StoreIplRateRequest $request, IplRate $iplRate)
-    {
-        $iplRate->update($request->validated());
-
-        return redirect()->route('admin.ipl-rates.index')->with('success', 'Tarif IPL berhasil diperbarui.');
-    }
-
-    public function destroy(IplRate $iplRate)
-    {
-        $iplRate->delete();
-
-        return back()->with('success', 'Tarif IPL dihapus.');
+        return back()->with('success', 'Tarif IPL berhasil diperbarui.');
     }
 }

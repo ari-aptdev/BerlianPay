@@ -22,6 +22,7 @@ class PaymentController extends Controller
 
         $existingPayments = Payment::with('house')
             ->whereIn('house_id', $houseIds)
+            ->where('type', 'monthly')
             ->where('period_year', $year)
             ->get()
             ->keyBy(fn ($p) => $p->house_id.'-'.$p->period_month);
@@ -39,7 +40,13 @@ class PaymentController extends Controller
             }
         }
 
-        return view('resident.payments.index', ['months' => $months, 'year' => $year]);
+        $otherPayments = Payment::with('house')
+            ->whereIn('house_id', $houseIds)
+            ->where('type', '!=', 'monthly')
+            ->latest()
+            ->get();
+
+        return view('resident.payments.index', ['months' => $months, 'year' => $year, 'otherPayments' => $otherPayments]);
     }
 
     /**

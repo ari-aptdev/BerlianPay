@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePaymentRequest;
 use App\Models\House;
 use App\Models\Payment;
+use App\Support\IplPricing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -53,6 +54,12 @@ class PaymentController extends Controller
             $data['signed_at'] = now();
         }
 
+        // Snapshot status & rincian iuran dari rumah yang dipilih, biar histori
+        // tetap akurat meskipun tarif atau status Rukem rumah berubah nanti.
+        $house = House::find($data['house_id']);
+        $data['ipl_status'] = $house->ipl_status;
+        $data['breakdown'] = IplPricing::breakdownFor($house->ipl_status);
+
         $data['recorded_by_admin_id'] = $request->user()->id;
 
         Payment::updateOrCreate(
@@ -94,6 +101,13 @@ class PaymentController extends Controller
         } else {
             // Jangan timpa TTD yang sudah ada kalau admin gak gambar ulang di form edit
             unset($data['signature']);
+        }
+
+        // Kalau rumahnya diganti di form edit, snapshot rincian ikut nyesuain.
+        if ((int) $data['house_id'] !== $payment->house_id || ! $payment->breakdown) {
+            $house = House::find($data['house_id']);
+            $data['ipl_status'] = $house->ipl_status;
+            $data['breakdown'] = IplPricing::breakdownFor($house->ipl_status);
         }
 
         $payment->update($data);

@@ -27,6 +27,7 @@ class StoreHouseRequest extends FormRequest
             'owner_name' => ['required', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:20'],
             'nik' => ['required', 'digits:16', Rule::unique('houses')->ignore($houseId)],
+            'ipl_status' => ['required', Rule::in(['rukem', 'non_rukem'])],
             'is_active' => ['boolean'],
         ];
     }

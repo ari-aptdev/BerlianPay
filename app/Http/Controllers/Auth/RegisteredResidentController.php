@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\House;
 use App\Models\User;
+use App\Support\IplPricing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -13,7 +13,7 @@ class RegisteredResidentController extends Controller
 {
     public function create()
     {
-        return view('auth.register');
+        return view('auth.register', ['registrationFee' => IplPricing::registrationFee()]);
     }
 
     public function store(Request $request)
@@ -24,6 +24,7 @@ class RegisteredResidentController extends Controller
             'nik' => ['required', 'digits:16', 'unique:users,nik'],
             'block' => ['required', 'string', 'max:5', 'regex:/^[A-Za-z]+$/'],
             'house_number' => ['required', 'integer', 'min:1', 'max:99'],
+            'wants_rukem' => ['nullable', 'boolean'],
         ], [
             'nik.unique' => 'NIK ini sudah terdaftar. Kalau ini akun kamu, hubungi admin buat reset password.',
             'block.regex' => 'Blok cuma boleh huruf, misal B.',
@@ -32,10 +33,11 @@ class RegisteredResidentController extends Controller
         $username = User::generateUsername($validated['name'], $validated['nik']);
         $password = Str::password(10, symbols: false);
 
-        $block = strtoupper($validated['block']);
-        $houseNumber = str_pad((string) $validated['house_number'], 2, '0', STR_PAD_LEFT);
-
-        $resident = User::create([
+        // PENTING: data rumah (block/house_number) DAN status Rukem CUMA disimpan
+        // sementara di akun user ini. Rumah baru benar-benar dibuat/masuk ke tabel
+        // "Data Warga & Rumah" setelah admin approve akun ini (lihat
+        // ResidentAccountController::approve()) — patokan datanya adalah akun warga.
+        User::create([
             'name' => $validated['name'],
             'phone' => $validated['phone'],
             'nik' => $validated['nik'],
@@ -43,18 +45,10 @@ class RegisteredResidentController extends Controller
             'password' => Hash::make($password),
             'role' => 'warga',
             'is_active' => false, // wajib diaktifkan admin dulu
+            'pending_block' => strtoupper($validated['block']),
+            'pending_house_number' => str_pad((string) $validated['house_number'], 2, '0', STR_PAD_LEFT),
+            'pending_wants_rukem' => $request->boolean('wants_rukem'),
         ]);
-
-        // Otomatis bikin/hubungkan data rumah berdasarkan Blok-No Rumah yang diisi warga,
-        // jadi admin TIDAK perlu lagi bikin data rumah secara manual.
-        $house = House::firstOrNew(['block' => $block, 'house_number' => $houseNumber]);
-        $house->owner_name = $validated['name'];
-        $house->phone = $validated['phone'];
-        $house->nik = $validated['nik'];
-        $house->is_active = true;
-        $house->save();
-
-        $resident->houses()->sync([$house->id]);
 
         return redirect()->route('register.success')->with([
             'generated_username' => $username,

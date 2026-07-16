@@ -17,6 +17,8 @@ class House extends Model
         'owner_name',
         'phone',
         'nik',
+        'ipl_status',
+        'rukem_joined_at',
         'is_active',
     ];
 
@@ -24,7 +26,13 @@ class House extends Model
     {
         return [
             'is_active' => 'boolean',
+            'rukem_joined_at' => 'datetime',
         ];
+    }
+
+    public function isRukem(): bool
+    {
+        return $this->ipl_status === 'rukem';
     }
 
     public function residents(): BelongsToMany

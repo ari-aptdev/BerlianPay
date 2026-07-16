@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\IplPricing;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,9 +13,12 @@ class Payment extends Model
 
     protected $fillable = [
         'house_id',
+        'type',
         'period_month',
         'period_year',
         'amount',
+        'ipl_status',
+        'breakdown',
         'status',
         'proof_image',
         'signature',
@@ -33,6 +37,7 @@ class Payment extends Model
             'signed_at' => 'datetime',
             'confirmed_at' => 'datetime',
             'amount' => 'integer',
+            'breakdown' => 'array',
         ];
     }
 
@@ -61,6 +66,11 @@ class Payment extends Model
         return $this->status === 'unpaid';
     }
 
+    public function isRegistrationFee(): bool
+    {
+        return $this->type === 'rukem_registration';
+    }
+
     public function statusLabel(): string
     {
         return match ($this->status) {
@@ -79,5 +89,32 @@ class Payment extends Model
         ];
 
         return ($bulan[$this->period_month] ?? $this->period_month).' '.$this->period_year;
+    }
+
+    /**
+     * Label yang ditampilkan ke user — beda buat biaya pendaftaran Rukem vs iuran bulanan biasa.
+     */
+    public function displayLabel(): string
+    {
+        return $this->isRegistrationFee() ? 'Biaya Pendaftaran Rukem' : "IPL {$this->periodLabel()}";
+    }
+
+    /**
+     * Rincian komponen iuran. Kalau baris ini dibuat sebelum fitur breakdown ada
+     * (data lama), hitung ulang dari tarif SEKARANG sebagai fallback.
+     * Pakai method ini di view, JANGAN akses $payment->breakdown langsung
+     * kalau butuh fallback (data lama breakdown-nya null).
+     */
+    public function resolvedBreakdown(): array
+    {
+        if (! empty($this->breakdown)) {
+            return $this->breakdown;
+        }
+
+        if ($this->isRegistrationFee()) {
+            return ['Biaya Pendaftaran Rukem' => $this->amount];
+        }
+
+        return IplPricing::breakdownFor($this->ipl_status ?? 'non_rukem');
     }
 }
