@@ -4,6 +4,31 @@
 <h2 class="text-lg font-medium text-slate-900 mb-6">Pengaturan</h2>
 
 <div class="bg-white rounded-xl border border-slate-200 p-6 max-w-xl mb-6">
+    <p class="text-sm font-medium text-slate-700 mb-4">Identitas Perumahan</p>
+    <form method="POST" action="{{ route('admin.settings.identity.update') }}" enctype="multipart/form-data" class="space-y-4">
+        @csrf @method('PUT')
+
+        <div>
+            <label class="block text-sm text-slate-600 mb-1.5">Nama Perumahan</label>
+            <input type="text" name="perumahan_nama" value="{{ old('perumahan_nama', $settings['perumahan_nama']) }}" required class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm">
+            @error('perumahan_nama') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+        </div>
+
+        <div>
+            <label class="block text-sm text-slate-600 mb-1.5">Logo Perumahan</label>
+            @if ($settings['perumahan_logo_path'])
+                <img src="{{ Storage::url($settings['perumahan_logo_path']) }}" alt="Logo saat ini" class="h-14 mb-2 rounded border border-slate-200 p-1">
+            @endif
+            <input type="file" name="perumahan_logo" accept="image/*" class="w-full text-sm">
+            @error('perumahan_logo') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+            <p class="text-xs text-slate-400 mt-1">Muncul di export laporan PDF. Format Excel (.xlsx) gak bisa nampilin logo (keterbatasan format), tapi nama perumahan tetap tercantum.</p>
+        </div>
+
+        <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white text-sm px-4 py-2.5 rounded-lg w-full sm:w-auto">Simpan Identitas</button>
+    </form>
+</div>
+
+<div class="bg-white rounded-xl border border-slate-200 p-6 max-w-xl mb-6">
     <p class="text-sm font-medium text-slate-700 mb-4">Keamanan Sesi Login</p>
     <form method="POST" action="{{ route('admin.settings.reminder.update') }}">
         @csrf @method('PUT')

@@ -115,6 +115,6 @@ class Payment extends Model
             return ['Biaya Pendaftaran Rukem' => $this->amount];
         }
 
-        return IplPricing::breakdownFor($this->ipl_status ?? 'non_rukem');
+        return IplPricing::breakdownFor($this->ipl_status ?? $this->house?->ipl_status ?? 'non_rukem');
     }
 }

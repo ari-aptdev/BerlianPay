@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AdminAccountController;
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\HouseController;
 use App\Http\Controllers\Admin\IplRateController;
 use App\Http\Controllers\Admin\PaymentConfirmationController;
@@ -55,6 +56,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('reports/export-pdf', [ReportController::class, 'exportPdf'])->name('reports.export-pdf');
     Route::get('reports/export-excel', [ReportController::class, 'exportExcel'])->name('reports.export-excel');
 
+    Route::post('expenses', [ExpenseController::class, 'store'])->name('expenses.store');
+    Route::put('expenses/{expense}', [ExpenseController::class, 'update'])->name('expenses.update');
+    Route::delete('expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
+
     Route::get('residents', [ResidentAccountController::class, 'index'])->name('residents.index');
     Route::get('residents/create', [ResidentAccountController::class, 'create'])->name('residents.create');
     Route::post('residents', [ResidentAccountController::class, 'store'])->name('residents.store');
@@ -72,6 +77,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     Route::get('settings/reminder', [SettingController::class, 'edit'])->name('settings.reminder');
     Route::put('settings/reminder', [SettingController::class, 'update'])->name('settings.reminder.update');
+    Route::put('settings/identity', [SettingController::class, 'updateIdentity'])->name('settings.identity.update');
 
     Route::get('reminder-logs', [ReminderLogController::class, 'index'])->name('reminder-logs.index');
 });

@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class SettingController extends Controller
 {
     public function __construct()
     {
         $this->middleware(['auth', 'permission:settings,view'])->only(['edit']);
-        $this->middleware(['auth', 'permission:settings,edit'])->only(['update']);
+        $this->middleware(['auth', 'permission:settings,edit'])->only(['update', 'updateIdentity']);
     }
 
     public function edit()
@@ -23,6 +24,8 @@ class SettingController extends Controller
             'email_reminder_enabled' => Setting::get('email_reminder_enabled', '1'),
             'wa_reminder_enabled' => Setting::get('wa_reminder_enabled', '0'),
             'session_timeout_minutes' => Setting::get('session_timeout_minutes', 30),
+            'perumahan_nama' => Setting::get('perumahan_nama', 'BerlianPay'),
+            'perumahan_logo_path' => Setting::get('perumahan_logo_path'),
         ];
 
         return view('admin.settings.reminder', compact('settings'));
@@ -44,5 +47,31 @@ class SettingController extends Controller
         }
 
         return back()->with('success', 'Pengaturan berhasil disimpan.');
+    }
+
+    /**
+     * Identitas perumahan (nama + logo) dipisah dari update() di atas
+     * karena butuh handle file upload, bukan cuma key-value teks biasa.
+     */
+    public function updateIdentity(Request $request)
+    {
+        $validated = $request->validate([
+            'perumahan_nama' => ['required', 'string', 'max:255'],
+            'perumahan_logo' => ['nullable', 'image', 'max:2048'],
+        ]);
+
+        Setting::set('perumahan_nama', $validated['perumahan_nama']);
+
+        if ($request->hasFile('perumahan_logo')) {
+            $oldPath = Setting::get('perumahan_logo_path');
+            if ($oldPath) {
+                Storage::disk('public')->delete($oldPath);
+            }
+
+            $path = $request->file('perumahan_logo')->store('logo', 'public');
+            Setting::set('perumahan_logo_path', $path);
+        }
+
+        return back()->with('success', 'Identitas perumahan berhasil disimpan.');
     }
 }

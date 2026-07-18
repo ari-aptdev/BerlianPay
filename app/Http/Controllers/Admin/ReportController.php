@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Expense;
 use App\Models\Payment;
+use App\Models\Setting;
+use App\Support\SimpleXlsxWriter;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportController extends Controller
 {
@@ -15,83 +17,124 @@ class ReportController extends Controller
         $this->middleware(['auth', 'permission:reports,view']);
     }
 
-    public function index(Request $request)
+    protected function bulanLabel(int $month): string
     {
-        $month = $request->month ?? now()->month;
-        $year = $request->year ?? now()->year;
+        $bulan = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+        ];
 
+        return $bulan[$month] ?? (string) $month;
+    }
+
+    protected function loadData(int $month, int $year): array
+    {
         $payments = Payment::with('house')
             ->where('period_month', $month)
             ->where('period_year', $year)
             ->orderBy('house_id')
             ->get();
 
-        $totalPaid = $payments->where('status', 'paid')->sum('amount');
+        $expenses = Expense::where('period_month', $month)
+            ->where('period_year', $year)
+            ->orderBy('created_at')
+            ->get();
 
-        return view('admin.reports.index', compact('payments', 'month', 'year', 'totalPaid'));
+        $totalPaid = $payments->where('status', 'paid')->sum('amount');
+        $totalExpense = $expenses->sum('amount');
+        $saldo = $totalPaid - $totalExpense;
+
+        return compact('payments', 'expenses', 'totalPaid', 'totalExpense', 'saldo');
+    }
+
+    public function index(Request $request)
+    {
+        $month = (int) ($request->month ?? now()->month);
+        $year = (int) ($request->year ?? now()->year);
+
+        $data = $this->loadData($month, $year);
+
+        return view('admin.reports.index', array_merge($data, compact('month', 'year')));
     }
 
     public function exportPdf(Request $request)
     {
-        $month = $request->month ?? now()->month;
-        $year = $request->year ?? now()->year;
+        $month = (int) ($request->month ?? now()->month);
+        $year = (int) ($request->year ?? now()->year);
 
-        $payments = Payment::with('house')
-            ->where('period_month', $month)
-            ->where('period_year', $year)
-            ->orderBy('house_id')
-            ->get();
+        $data = $this->loadData($month, $year);
 
-        $pdf = Pdf::loadView('admin.reports.pdf', compact('payments', 'month', 'year'));
+        $perumahanNama = Setting::get('perumahan_nama', 'BerlianPay');
+        $logoPath = Setting::get('perumahan_logo_path');
+        $logoAbsolutePath = $logoPath ? storage_path('app/public/'.$logoPath) : null;
 
-        return $pdf->download("laporan-ipl-{$year}-{$month}.pdf");
+        $pdf = Pdf::loadView('admin.reports.pdf', array_merge($data, [
+            'month' => $month,
+            'year' => $year,
+            'bulanLabel' => $this->bulanLabel($month),
+            'perumahanNama' => $perumahanNama,
+            'logoAbsolutePath' => ($logoAbsolutePath && file_exists($logoAbsolutePath)) ? $logoAbsolutePath : null,
+        ]));
+
+        return $pdf->download("laporan-kas-ipl-{$year}-{$month}.pdf");
     }
 
     /**
-     * Export CSV manual (bisa dibuka langsung di Excel/Google Sheets).
-     * Sengaja tidak pakai library Excel eksternal (maatwebsite/excel) supaya
-     * tidak menambah dependency berat (phpspreadsheet + ext-gd) untuk MVP.
+     * Export .xlsx asli (bukan CSV) tanpa dependency eksternal — lihat catatan
+     * di App\Support\SimpleXlsxWriter. Logo TIDAK bisa disisipkan di file Excel
+     * (keterbatasan teknis format tanpa library tambahan), tapi nama perumahan
+     * tetap dicantumkan sebagai judul. Logo tetap muncul lengkap di export PDF.
      */
-    public function exportExcel(Request $request): StreamedResponse
+    public function exportExcel(Request $request)
     {
-        $month = $request->month ?? now()->month;
-        $year = $request->year ?? now()->year;
+        $month = (int) ($request->month ?? now()->month);
+        $year = (int) ($request->year ?? now()->year);
 
-        $payments = Payment::with('house')
-            ->where('period_month', $month)
-            ->where('period_year', $year)
-            ->orderBy('house_id')
-            ->get();
+        $data = $this->loadData($month, $year);
+        $perumahanNama = Setting::get('perumahan_nama', 'BerlianPay');
 
-        $filename = "laporan-ipl-{$year}-{$month}.csv";
+        $rows = [];
+        $rows[] = [$perumahanNama.' - Laporan Kas IPL'];
+        $rows[] = ['Periode: '.$this->bulanLabel($month).' '.$year];
+        $rows[] = [];
+        $rows[] = ['PEMASUKAN (Pembayaran IPL Warga)'];
+        $rows[] = ['Blok', 'No. Rumah', 'Nama Warga', 'Status IPL', 'Keterangan', 'Nominal', 'Status', 'Tanggal Bayar'];
 
-        $headers = [
-            'Content-Type' => 'text/csv; charset=UTF-8',
+        foreach ($data['payments'] as $payment) {
+            $rows[] = [
+                $payment->house->block,
+                $payment->house->house_number,
+                $payment->house->owner_name,
+                $payment->house->isRukem() ? 'Rukem' : 'Non-Rukem',
+                $payment->displayLabel(),
+                $payment->amount,
+                $payment->status === 'paid' ? 'Lunas' : ($payment->status === 'pending_confirmation' ? 'Menunggu Validasi' : 'Belum Bayar'),
+                $payment->paid_at?->format('d-m-Y') ?? '-',
+            ];
+        }
+
+        $rows[] = [];
+        $rows[] = ['Total Pemasukan (Lunas)', '', '', '', '', $data['totalPaid']];
+        $rows[] = [];
+        $rows[] = ['PENGELUARAN'];
+        $rows[] = ['Keterangan', 'Nominal', 'Dicatat oleh'];
+
+        foreach ($data['expenses'] as $expense) {
+            $rows[] = [$expense->description, $expense->amount, $expense->recordedBy?->name ?? '-'];
+        }
+
+        $rows[] = [];
+        $rows[] = ['Total Pengeluaran', $data['totalExpense']];
+        $rows[] = [];
+        $rows[] = ['SALDO (Pemasukan - Pengeluaran)', $data['saldo']];
+
+        $content = SimpleXlsxWriter::generate($rows);
+        $filename = "laporan-kas-ipl-{$year}-{$month}.xlsx";
+
+        return response($content, 200, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
-        ];
-
-        return response()->streamDownload(function () use ($payments) {
-            $out = fopen('php://output', 'w');
-
-            // BOM biar Excel baca UTF-8 dengan benar (karakter Rp, dsb)
-            fwrite($out, "\xEF\xBB\xBF");
-
-            fputcsv($out, ['Blok', 'No. Rumah', 'Nama Warga', 'Periode', 'Nominal', 'Status', 'Tanggal Bayar']);
-
-            foreach ($payments as $payment) {
-                fputcsv($out, [
-                    $payment->house->block,
-                    $payment->house->house_number,
-                    $payment->house->owner_name,
-                    $payment->periodLabel(),
-                    $payment->amount,
-                    $payment->status === 'paid' ? 'Lunas' : 'Belum bayar',
-                    $payment->paid_at?->format('d-m-Y') ?? '-',
-                ]);
-            }
-
-            fclose($out);
-        }, $filename, $headers);
+        ]);
     }
 }
-

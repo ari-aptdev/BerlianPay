@@ -18,13 +18,13 @@ class DashboardController extends Controller
         // dari tarif Rukem/Non-Rukem yang berlaku SEKARANG dan disnapshot
         // (breakdown + ipl_status) biar histori gak berubah kalau tarif diedit nanti.
         foreach ($houses as $house) {
-            $exists = Payment::where('house_id', $house->id)
+            $payment = Payment::where('house_id', $house->id)
                 ->where('type', 'monthly')
                 ->where('period_month', now()->month)
                 ->where('period_year', now()->year)
-                ->exists();
+                ->first();
 
-            if (! $exists) {
+            if (! $payment) {
                 $breakdown = IplPricing::breakdownFor($house->ipl_status);
 
                 Payment::create([
@@ -36,6 +36,16 @@ class DashboardController extends Controller
                     'ipl_status' => $house->ipl_status,
                     'breakdown' => $breakdown,
                     'status' => 'unpaid',
+                ]);
+            } elseif ($payment->status === 'unpaid' && (empty($payment->ipl_status) || empty($payment->breakdown))) {
+                // Baris ini dibuat sebelum fitur Rukem/Non-Rukem ada (data lama),
+                // dan belum dibayar — aman diperbaiki nominalnya sesuai tarif sekarang.
+                $breakdown = IplPricing::breakdownFor($house->ipl_status);
+
+                $payment->update([
+                    'amount' => array_sum($breakdown),
+                    'ipl_status' => $house->ipl_status,
+                    'breakdown' => $breakdown,
                 ]);
             }
         }
