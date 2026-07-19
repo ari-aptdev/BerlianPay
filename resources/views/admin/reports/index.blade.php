@@ -8,7 +8,7 @@
         <label class="block text-xs text-slate-500 mb-1">Bulan</label>
         <select name="month" class="rounded-lg border border-slate-200 px-3 py-2 text-sm">
             @for ($m = 1; $m <= 12; $m++)
-                <option value="{{ $m }}" @selected($month == $m)>{{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}</option>
+                <option value="{{ $m }}" @selected($month == $m)>{{ \App\Http\Controllers\Admin\ReportController::bulanLabel($m) }}</option>
             @endfor
         </select>
     </div>
@@ -25,78 +25,87 @@
     </a>
 </form>
 
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+<div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
     <div class="bg-white rounded-xl border border-slate-200 p-4">
-        <p class="text-sm text-slate-500">Pemasukan (Lunas)</p>
-        <p class="text-xl font-semibold text-green-700">Rp {{ number_format($totalPaid, 0, ',', '.') }}</p>
+        <p class="text-sm text-slate-500">Saldo Awal</p>
+        <p class="text-lg font-semibold text-slate-700">Rp {{ number_format($startingBalance, 0, ',', '.') }}</p>
     </div>
     <div class="bg-white rounded-xl border border-slate-200 p-4">
-        <p class="text-sm text-slate-500">Pengeluaran</p>
-        <p class="text-xl font-semibold text-red-600">Rp {{ number_format($totalExpense, 0, ',', '.') }}</p>
+        <p class="text-sm text-slate-500">Total Masuk</p>
+        <p class="text-lg font-semibold text-green-700">Rp {{ number_format($totalMasuk, 0, ',', '.') }}</p>
     </div>
     <div class="bg-white rounded-xl border border-slate-200 p-4">
-        <p class="text-sm text-slate-500">Saldo Kas</p>
-        <p class="text-xl font-semibold {{ $saldo >= 0 ? 'text-brand-700' : 'text-red-600' }}">Rp {{ number_format($saldo, 0, ',', '.') }}</p>
+        <p class="text-sm text-slate-500">Total Keluar</p>
+        <p class="text-lg font-semibold text-red-600">Rp {{ number_format($totalKeluar, 0, ',', '.') }}</p>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 p-4">
+        <p class="text-sm text-slate-500">Saldo Akhir</p>
+        <p class="text-lg font-semibold {{ $endingBalance >= 0 ? 'text-brand-700' : 'text-red-600' }}">Rp {{ number_format($endingBalance, 0, ',', '.') }}</p>
     </div>
 </div>
 
-<h3 class="text-sm font-medium text-slate-700 mb-3">Pemasukan — Pembayaran IPL Warga</h3>
+<h3 class="text-sm font-medium text-slate-700 mb-3">Buku Kas — {{ \App\Http\Controllers\Admin\ReportController::bulanLabel($month) }} {{ $year }}</h3>
 <div class="bg-white rounded-xl border border-slate-200 overflow-x-auto mb-8">
-    <table class="w-full text-sm min-w-[680px]">
+    <table class="w-full text-sm min-w-[640px]">
         <thead class="bg-slate-50 text-slate-500">
             <tr>
-                <th class="text-left px-4 py-2 font-normal">Rumah</th>
-                <th class="text-left px-4 py-2 font-normal">Nama</th>
-                <th class="text-left px-4 py-2 font-normal">Status IPL</th>
+                <th class="text-left px-4 py-2 font-normal">Tanggal</th>
                 <th class="text-left px-4 py-2 font-normal">Keterangan</th>
-                <th class="text-left px-4 py-2 font-normal">Nominal</th>
-                <th class="text-left px-4 py-2 font-normal">Status</th>
+                <th class="text-right px-4 py-2 font-normal">Masuk</th>
+                <th class="text-right px-4 py-2 font-normal">Keluar</th>
+                <th class="text-right px-4 py-2 font-normal">Saldo Akhir</th>
             </tr>
         </thead>
         <tbody>
-            @forelse ($payments as $payment)
+            <tr class="border-t border-slate-100 bg-slate-50/50">
+                <td class="px-4 py-2.5 text-slate-400" colspan="4">Saldo awal bulan ini</td>
+                <td class="px-4 py-2.5 text-right font-medium">Rp {{ number_format($startingBalance, 0, ',', '.') }}</td>
+            </tr>
+            @forelse ($entries as $entry)
                 <tr class="border-t border-slate-100">
-                    <td class="px-4 py-2.5">{{ $payment->house->fullLabel() }}</td>
-                    <td class="px-4 py-2.5">{{ $payment->house->owner_name }}</td>
-                    <td class="px-4 py-2.5">{{ $payment->house->isRukem() ? 'Rukem' : 'Non-Rukem' }}</td>
-                    <td class="px-4 py-2.5">{{ $payment->displayLabel() }}</td>
-                    <td class="px-4 py-2.5">Rp {{ number_format($payment->amount, 0, ',', '.') }}</td>
-                    <td class="px-4 py-2.5">{{ $payment->statusLabel() }}</td>
+                    <td class="px-4 py-2.5">{{ $entry['date']->format('d-m-Y') }}</td>
+                    <td class="px-4 py-2.5">{{ $entry['description'] }}</td>
+                    <td class="px-4 py-2.5 text-right text-green-700">{{ $entry['masuk'] ? 'Rp '.number_format($entry['masuk'], 0, ',', '.') : '-' }}</td>
+                    <td class="px-4 py-2.5 text-right text-red-600">{{ $entry['keluar'] ? 'Rp '.number_format($entry['keluar'], 0, ',', '.') : '-' }}</td>
+                    <td class="px-4 py-2.5 text-right font-medium">Rp {{ number_format($entry['saldo_akhir'], 0, ',', '.') }}</td>
                 </tr>
             @empty
-                <tr><td colspan="6" class="px-4 py-6 text-center text-slate-400">Tidak ada data untuk periode ini.</td></tr>
+                <tr><td colspan="5" class="px-4 py-6 text-center text-slate-400">Tidak ada transaksi bulan ini.</td></tr>
             @endforelse
         </tbody>
     </table>
 </div>
 
 <div class="flex items-center justify-between mb-3">
-    <h3 class="text-sm font-medium text-slate-700">Pengeluaran Bulan Ini</h3>
+    <h3 class="text-sm font-medium text-slate-700">Kelola Pengeluaran Bulan Ini</h3>
 </div>
 
 <div class="bg-white rounded-xl border border-slate-200 overflow-x-auto mb-4">
-    <table class="w-full text-sm min-w-[500px]">
+    <table class="w-full text-sm min-w-[560px]">
         <thead class="bg-slate-50 text-slate-500">
             <tr>
+                <th class="text-left px-4 py-2 font-normal">Tanggal</th>
                 <th class="text-left px-4 py-2 font-normal">Keterangan</th>
                 <th class="text-left px-4 py-2 font-normal">Nominal</th>
-                <th class="text-left px-4 py-2 font-normal">Dicatat oleh</th>
                 <th class="text-right px-4 py-2 font-normal">Aksi</th>
             </tr>
         </thead>
         <tbody>
-            @forelse ($expenses as $expense)
+            @forelse ($entries->filter(fn ($e) => isset($e['model'])) as $entry)
+                @php $expense = $entry['model']; @endphp
                 <form id="expense-form-{{ $expense->id }}" method="POST" action="{{ route('admin.expenses.update', $expense) }}">
                     @csrf @method('PUT')
                 </form>
                 <tr class="border-t border-slate-100">
+                    <td class="px-4 py-2.5">
+                        <input type="date" form="expense-form-{{ $expense->id }}" name="expense_date" value="{{ $expense->expense_date->format('Y-m-d') }}" class="bg-transparent border-0 p-0 text-sm focus:ring-1 focus:ring-brand-600 rounded">
+                    </td>
                     <td class="px-4 py-2.5">
                         <input type="text" form="expense-form-{{ $expense->id }}" name="description" value="{{ $expense->description }}" class="w-full bg-transparent border-0 p-0 text-sm focus:ring-1 focus:ring-brand-600 rounded">
                     </td>
                     <td class="px-4 py-2.5">
                         <input type="number" form="expense-form-{{ $expense->id }}" name="amount" value="{{ $expense->amount }}" class="w-28 bg-transparent border-0 p-0 text-sm focus:ring-1 focus:ring-brand-600 rounded">
                     </td>
-                    <td class="px-4 py-2.5 text-slate-500">{{ $expense->recordedBy?->name ?? '-' }}</td>
                     <td class="px-4 py-2.5 text-right space-x-2">
                         <button type="submit" form="expense-form-{{ $expense->id }}" class="text-brand-600 hover:underline">Simpan</button>
                         <form method="POST" action="{{ route('admin.expenses.destroy', $expense) }}" class="inline" onsubmit="return confirm('Hapus pengeluaran ini?')">
@@ -119,7 +128,12 @@
         <input type="hidden" name="period_month" value="{{ $month }}">
         <input type="hidden" name="period_year" value="{{ $year }}">
         <div>
-            <label class="block text-sm text-slate-600 mb-1.5">Keterangan</label>
+            <label class="block text-sm text-slate-600 mb-1.5">Tanggal</label>
+            <input type="date" name="expense_date" value="{{ now()->toDateString() }}" required class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm">
+            @error('expense_date') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+        </div>
+        <div>
+            <label class="block text-sm text-slate-600 mb-1.5">Keterangan (dipakai untuk apa)</label>
             <input type="text" name="description" placeholder="Mis. Perbaikan lampu jalan Blok C" required class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm">
             @error('description') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
         </div>

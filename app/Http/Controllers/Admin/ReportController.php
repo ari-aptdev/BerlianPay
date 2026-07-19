@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Expense;
-use App\Models\Payment;
 use App\Models\Setting;
+use App\Support\CashLedger;
 use App\Support\SimpleXlsxWriter;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -17,7 +16,7 @@ class ReportController extends Controller
         $this->middleware(['auth', 'permission:reports,view']);
     }
 
-    protected function bulanLabel(int $month): string
+    public static function bulanLabel(int $month): string
     {
         $bulan = [
             1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
@@ -28,34 +27,14 @@ class ReportController extends Controller
         return $bulan[$month] ?? (string) $month;
     }
 
-    protected function loadData(int $month, int $year): array
-    {
-        $payments = Payment::with('house')
-            ->where('period_month', $month)
-            ->where('period_year', $year)
-            ->orderBy('house_id')
-            ->get();
-
-        $expenses = Expense::where('period_month', $month)
-            ->where('period_year', $year)
-            ->orderBy('created_at')
-            ->get();
-
-        $totalPaid = $payments->where('status', 'paid')->sum('amount');
-        $totalExpense = $expenses->sum('amount');
-        $saldo = $totalPaid - $totalExpense;
-
-        return compact('payments', 'expenses', 'totalPaid', 'totalExpense', 'saldo');
-    }
-
     public function index(Request $request)
     {
         $month = (int) ($request->month ?? now()->month);
         $year = (int) ($request->year ?? now()->year);
 
-        $data = $this->loadData($month, $year);
+        $ledger = CashLedger::build($month, $year);
 
-        return view('admin.reports.index', array_merge($data, compact('month', 'year')));
+        return view('admin.reports.index', array_merge($ledger, compact('month', 'year')));
     }
 
     public function exportPdf(Request $request)
@@ -63,16 +42,16 @@ class ReportController extends Controller
         $month = (int) ($request->month ?? now()->month);
         $year = (int) ($request->year ?? now()->year);
 
-        $data = $this->loadData($month, $year);
+        $ledger = CashLedger::build($month, $year);
 
         $perumahanNama = Setting::get('perumahan_nama', 'BerlianPay');
         $logoPath = Setting::get('perumahan_logo_path');
         $logoAbsolutePath = $logoPath ? storage_path('app/public/'.$logoPath) : null;
 
-        $pdf = Pdf::loadView('admin.reports.pdf', array_merge($data, [
+        $pdf = Pdf::loadView('admin.reports.pdf', array_merge($ledger, [
             'month' => $month,
             'year' => $year,
-            'bulanLabel' => $this->bulanLabel($month),
+            'bulanLabel' => self::bulanLabel($month),
             'perumahanNama' => $perumahanNama,
             'logoAbsolutePath' => ($logoAbsolutePath && file_exists($logoAbsolutePath)) ? $logoAbsolutePath : null,
         ]));
@@ -91,43 +70,31 @@ class ReportController extends Controller
         $month = (int) ($request->month ?? now()->month);
         $year = (int) ($request->year ?? now()->year);
 
-        $data = $this->loadData($month, $year);
+        $ledger = CashLedger::build($month, $year);
         $perumahanNama = Setting::get('perumahan_nama', 'BerlianPay');
 
         $rows = [];
         $rows[] = [$perumahanNama.' - Laporan Kas IPL'];
-        $rows[] = ['Periode: '.$this->bulanLabel($month).' '.$year];
+        $rows[] = ['Periode: '.self::bulanLabel($month).' '.$year];
         $rows[] = [];
-        $rows[] = ['PEMASUKAN (Pembayaran IPL Warga)'];
-        $rows[] = ['Blok', 'No. Rumah', 'Nama Warga', 'Status IPL', 'Keterangan', 'Nominal', 'Status', 'Tanggal Bayar'];
+        $rows[] = ['Saldo Awal', $ledger['startingBalance']];
+        $rows[] = [];
+        $rows[] = ['Tanggal', 'Keterangan', 'Masuk', 'Keluar', 'Saldo Akhir'];
 
-        foreach ($data['payments'] as $payment) {
+        foreach ($ledger['entries'] as $entry) {
             $rows[] = [
-                $payment->house->block,
-                $payment->house->house_number,
-                $payment->house->owner_name,
-                $payment->house->isRukem() ? 'Rukem' : 'Non-Rukem',
-                $payment->displayLabel(),
-                $payment->amount,
-                $payment->status === 'paid' ? 'Lunas' : ($payment->status === 'pending_confirmation' ? 'Menunggu Validasi' : 'Belum Bayar'),
-                $payment->paid_at?->format('d-m-Y') ?? '-',
+                $entry['date']->format('d-m-Y'),
+                $entry['description'],
+                $entry['masuk'] ?: '',
+                $entry['keluar'] ?: '',
+                $entry['saldo_akhir'],
             ];
         }
 
         $rows[] = [];
-        $rows[] = ['Total Pemasukan (Lunas)', '', '', '', '', $data['totalPaid']];
-        $rows[] = [];
-        $rows[] = ['PENGELUARAN'];
-        $rows[] = ['Keterangan', 'Nominal', 'Dicatat oleh'];
-
-        foreach ($data['expenses'] as $expense) {
-            $rows[] = [$expense->description, $expense->amount, $expense->recordedBy?->name ?? '-'];
-        }
-
-        $rows[] = [];
-        $rows[] = ['Total Pengeluaran', $data['totalExpense']];
-        $rows[] = [];
-        $rows[] = ['SALDO (Pemasukan - Pengeluaran)', $data['saldo']];
+        $rows[] = ['Total Masuk', '', $ledger['totalMasuk']];
+        $rows[] = ['Total Keluar', '', '', $ledger['totalKeluar']];
+        $rows[] = ['Saldo Akhir Bulan Ini', '', '', '', $ledger['endingBalance']];
 
         $content = SimpleXlsxWriter::generate($rows);
         $filename = "laporan-kas-ipl-{$year}-{$month}.xlsx";

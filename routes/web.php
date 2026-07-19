@@ -18,6 +18,7 @@ use App\Http\Controllers\Resident\DashboardController as ResidentDashboardContro
 use App\Http\Controllers\Resident\NotificationController as ResidentNotificationController;
 use App\Http\Controllers\Resident\PaymentController as ResidentPaymentController;
 use App\Http\Controllers\Resident\ProfileController;
+use App\Http\Controllers\Resident\ReportController as ResidentReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect('/login'));
@@ -93,6 +94,10 @@ Route::middleware(['auth', 'role:warga'])->prefix('resident')->name('resident.')
     Route::post('payments/{payment}/confirm', [ResidentPaymentController::class, 'confirmSubmit'])->name('payments.confirm-submit');
 
     Route::post('notifications/mark-read', [ResidentNotificationController::class, 'markRead'])->name('notifications.mark-read');
+
+    Route::get('reports', [ResidentReportController::class, 'index'])->name('reports.index');
+    Route::get('reports/{month}/{year}', [ResidentReportController::class, 'show'])->name('reports.show');
+    Route::get('reports/{month}/{year}/pdf', [ResidentReportController::class, 'pdf'])->name('reports.pdf');
 
     Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('profile', [ProfileController::class, 'update'])->name('profile.update');

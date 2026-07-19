@@ -18,6 +18,7 @@ class ExpenseController extends Controller
         $validated = $request->validate([
             'period_month' => ['required', 'integer', 'between:1,12'],
             'period_year' => ['required', 'integer', 'min:2020', 'max:2100'],
+            'expense_date' => ['required', 'date'],
             'amount' => ['required', 'integer', 'min:0'],
             'description' => ['required', 'string', 'max:255'],
         ]);
@@ -35,6 +36,7 @@ class ExpenseController extends Controller
     public function update(Request $request, Expense $expense)
     {
         $validated = $request->validate([
+            'expense_date' => ['required', 'date'],
             'amount' => ['required', 'integer', 'min:0'],
             'description' => ['required', 'string', 'max:255'],
         ]);

@@ -121,12 +121,15 @@
 </main>
 
 <nav class="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 md:hidden">
-    <div class="max-w-md mx-auto grid grid-cols-2">
+    <div class="max-w-md mx-auto grid grid-cols-3">
         <a href="{{ route('resident.dashboard') }}" class="flex flex-col items-center py-2.5 text-xs {{ request()->routeIs('resident.dashboard') ? 'text-brand-600' : 'text-slate-400' }}">
-            <i class="ti ti-layout-dashboard text-lg mb-0.5"></i> Status Bulan Ini
+            <i class="ti ti-layout-dashboard text-lg mb-0.5"></i> Status
         </a>
         <a href="{{ route('resident.payments.index') }}" class="flex flex-col items-center py-2.5 text-xs {{ request()->routeIs('resident.payments.*') ? 'text-brand-600' : 'text-slate-400' }}">
             <i class="ti ti-receipt text-lg mb-0.5"></i> Riwayat
+        </a>
+        <a href="{{ route('resident.reports.index') }}" class="flex flex-col items-center py-2.5 text-xs {{ request()->routeIs('resident.reports.*') ? 'text-brand-600' : 'text-slate-400' }}">
+            <i class="ti ti-report-money text-lg mb-0.5"></i> Laporan
         </a>
     </div>
 </nav>

@@ -10,6 +10,7 @@ class Expense extends Model
     protected $fillable = [
         'period_month',
         'period_year',
+        'expense_date',
         'amount',
         'description',
         'recorded_by_admin_id',
@@ -19,6 +20,7 @@ class Expense extends Model
     {
         return [
             'amount' => 'integer',
+            'expense_date' => 'date',
         ];
     }
 
