@@ -18,27 +18,35 @@ class ReportController extends Controller
         return view('resident.reports.index', compact('year'));
     }
 
+    protected function buildBoth(int $month, int $year): array
+    {
+        return [
+            'general' => CashLedger::build($month, $year, 'general'),
+            'security' => CashLedger::build($month, $year, 'security'),
+        ];
+    }
+
     public function show(Request $request, int $month, int $year)
     {
         abort_unless($month >= 1 && $month <= 12, 404);
 
-        $ledger = CashLedger::build($month, $year);
+        $ledgers = $this->buildBoth($month, $year);
         $bulanLabel = AdminReportController::bulanLabel($month);
 
-        return view('resident.reports.show', array_merge($ledger, compact('month', 'year', 'bulanLabel')));
+        return view('resident.reports.show', array_merge($ledgers, compact('month', 'year', 'bulanLabel')));
     }
 
     public function pdf(Request $request, int $month, int $year)
     {
         abort_unless($month >= 1 && $month <= 12, 404);
 
-        $ledger = CashLedger::build($month, $year);
+        $ledgers = $this->buildBoth($month, $year);
 
         $perumahanNama = Setting::get('perumahan_nama', 'BerlianPay');
         $logoPath = Setting::get('perumahan_logo_path');
         $logoAbsolutePath = $logoPath ? storage_path('app/public/'.$logoPath) : null;
 
-        $pdf = Pdf::loadView('admin.reports.pdf', array_merge($ledger, [
+        $pdf = Pdf::loadView('admin.reports.pdf', array_merge($ledgers, [
             'month' => $month,
             'year' => $year,
             'bulanLabel' => AdminReportController::bulanLabel($month),
@@ -46,6 +54,6 @@ class ReportController extends Controller
             'logoAbsolutePath' => ($logoAbsolutePath && file_exists($logoAbsolutePath)) ? $logoAbsolutePath : null,
         ]));
 
-        return $pdf->download("laporan-kas-ipl-{$year}-{$month}.pdf");
+        return $pdf->download("laporan-kas-{$year}-{$month}.pdf");
     }
 }

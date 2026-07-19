@@ -27,14 +27,22 @@ class ReportController extends Controller
         return $bulan[$month] ?? (string) $month;
     }
 
+    protected function buildBoth(int $month, int $year): array
+    {
+        return [
+            'general' => CashLedger::build($month, $year, 'general'),
+            'security' => CashLedger::build($month, $year, 'security'),
+        ];
+    }
+
     public function index(Request $request)
     {
         $month = (int) ($request->month ?? now()->month);
         $year = (int) ($request->year ?? now()->year);
 
-        $ledger = CashLedger::build($month, $year);
+        $ledgers = $this->buildBoth($month, $year);
 
-        return view('admin.reports.index', array_merge($ledger, compact('month', 'year')));
+        return view('admin.reports.index', array_merge($ledgers, compact('month', 'year')));
     }
 
     public function exportPdf(Request $request)
@@ -42,13 +50,13 @@ class ReportController extends Controller
         $month = (int) ($request->month ?? now()->month);
         $year = (int) ($request->year ?? now()->year);
 
-        $ledger = CashLedger::build($month, $year);
+        $ledgers = $this->buildBoth($month, $year);
 
         $perumahanNama = Setting::get('perumahan_nama', 'BerlianPay');
         $logoPath = Setting::get('perumahan_logo_path');
         $logoAbsolutePath = $logoPath ? storage_path('app/public/'.$logoPath) : null;
 
-        $pdf = Pdf::loadView('admin.reports.pdf', array_merge($ledger, [
+        $pdf = Pdf::loadView('admin.reports.pdf', array_merge($ledgers, [
             'month' => $month,
             'year' => $year,
             'bulanLabel' => self::bulanLabel($month),
@@ -56,7 +64,7 @@ class ReportController extends Controller
             'logoAbsolutePath' => ($logoAbsolutePath && file_exists($logoAbsolutePath)) ? $logoAbsolutePath : null,
         ]));
 
-        return $pdf->download("laporan-kas-ipl-{$year}-{$month}.pdf");
+        return $pdf->download("laporan-kas-{$year}-{$month}.pdf");
     }
 
     /**
@@ -70,34 +78,39 @@ class ReportController extends Controller
         $month = (int) ($request->month ?? now()->month);
         $year = (int) ($request->year ?? now()->year);
 
-        $ledger = CashLedger::build($month, $year);
+        $ledgers = $this->buildBoth($month, $year);
         $perumahanNama = Setting::get('perumahan_nama', 'BerlianPay');
 
         $rows = [];
-        $rows[] = [$perumahanNama.' - Laporan Kas IPL'];
+        $rows[] = [$perumahanNama.' - Laporan Kas'];
         $rows[] = ['Periode: '.self::bulanLabel($month).' '.$year];
-        $rows[] = [];
-        $rows[] = ['Saldo Awal', $ledger['startingBalance']];
-        $rows[] = [];
-        $rows[] = ['Tanggal', 'Keterangan', 'Masuk', 'Keluar', 'Saldo Akhir'];
 
-        foreach ($ledger['entries'] as $entry) {
-            $rows[] = [
-                $entry['date']->format('d-m-Y'),
-                $entry['description'],
-                $entry['masuk'] ?: '',
-                $entry['keluar'] ?: '',
-                $entry['saldo_akhir'],
-            ];
+        foreach (['general' => 'KAS IPL (UMUM)', 'security' => 'KAS SECURITY'] as $key => $sectionTitle) {
+            $ledger = $ledgers[$key];
+            $rows[] = [];
+            $rows[] = [$sectionTitle];
+            $rows[] = ['Saldo Awal', $ledger['startingBalance']];
+            $rows[] = [];
+            $rows[] = ['Tanggal', 'Keterangan', 'Masuk', 'Keluar', 'Saldo Akhir'];
+
+            foreach ($ledger['entries'] as $entry) {
+                $rows[] = [
+                    $entry['date']->format('d-m-Y'),
+                    $entry['description'],
+                    $entry['masuk'] ?: '',
+                    $entry['keluar'] ?: '',
+                    $entry['saldo_akhir'],
+                ];
+            }
+
+            $rows[] = [];
+            $rows[] = ['Total Masuk', '', $ledger['totalMasuk']];
+            $rows[] = ['Total Keluar', '', '', $ledger['totalKeluar']];
+            $rows[] = ["Saldo Akhir {$sectionTitle}", '', '', '', $ledger['endingBalance']];
         }
 
-        $rows[] = [];
-        $rows[] = ['Total Masuk', '', $ledger['totalMasuk']];
-        $rows[] = ['Total Keluar', '', '', $ledger['totalKeluar']];
-        $rows[] = ['Saldo Akhir Bulan Ini', '', '', '', $ledger['endingBalance']];
-
         $content = SimpleXlsxWriter::generate($rows);
-        $filename = "laporan-kas-ipl-{$year}-{$month}.xlsx";
+        $filename = "laporan-kas-{$year}-{$month}.xlsx";
 
         return response($content, 200, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

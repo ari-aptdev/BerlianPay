@@ -11,6 +11,7 @@ class Expense extends Model
         'period_month',
         'period_year',
         'expense_date',
+        'category',
         'amount',
         'description',
         'recorded_by_admin_id',

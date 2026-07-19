@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Expense;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ExpenseController extends Controller
 {
@@ -19,6 +20,7 @@ class ExpenseController extends Controller
             'period_month' => ['required', 'integer', 'between:1,12'],
             'period_year' => ['required', 'integer', 'min:2020', 'max:2100'],
             'expense_date' => ['required', 'date'],
+            'category' => ['required', Rule::in(['general', 'security'])],
             'amount' => ['required', 'integer', 'min:0'],
             'description' => ['required', 'string', 'max:255'],
         ]);
@@ -37,6 +39,7 @@ class ExpenseController extends Controller
     {
         $validated = $request->validate([
             'expense_date' => ['required', 'date'],
+            'category' => ['required', Rule::in(['general', 'security'])],
             'amount' => ['required', 'integer', 'min:0'],
             'description' => ['required', 'string', 'max:255'],
         ]);
