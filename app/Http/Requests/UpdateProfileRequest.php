@@ -20,7 +20,7 @@ class UpdateProfileRequest extends FormRequest
             'email' => ['nullable', 'email', Rule::unique('users')->ignore($this->user()->id)],
             'reminder_email_enabled' => ['boolean'],
             'reminder_wa_enabled' => ['boolean'],
-            'password' => ['nullable', 'confirmed', 'min:8'],
+            'password' => ['nullable', 'confirmed', 'min:6'],
         ];
     }
 }

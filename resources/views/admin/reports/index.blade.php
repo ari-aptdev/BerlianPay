@@ -91,12 +91,14 @@
     <h3 class="text-sm font-medium text-slate-700">Kelola Pengeluaran Bulan Ini</h3>
 </div>
 
+@if (auth()->user()->canAccess('reports', 'edit'))
 <div class="bg-white rounded-xl border border-slate-200 overflow-x-auto mb-4">
-    <table class="w-full text-sm min-w-[640px]">
+    <table class="w-full text-sm min-w-[720px]">
         <thead class="bg-slate-50 text-slate-500">
             <tr>
                 <th class="text-left px-4 py-2 font-normal">Tanggal</th>
                 <th class="text-left px-4 py-2 font-normal">Kategori</th>
+                <th class="text-left px-4 py-2 font-normal">Jenis</th>
                 <th class="text-left px-4 py-2 font-normal">Keterangan</th>
                 <th class="text-left px-4 py-2 font-normal">Nominal</th>
                 <th class="text-right px-4 py-2 font-normal">Aksi</th>
@@ -124,6 +126,17 @@
                         </select>
                     </td>
                     <td class="px-4 py-2.5">
+                        @if ($expense->category === 'security')
+                            <select form="expense-form-{{ $expense->id }}" name="type" class="bg-transparent border-0 p-0 text-sm focus:ring-1 focus:ring-brand-600 rounded">
+                                <option value="income" @selected($expense->type === 'income')>Masuk</option>
+                                <option value="expense" @selected($expense->type === 'expense')>Keluar</option>
+                            </select>
+                        @else
+                            <span class="text-slate-400">Keluar</span>
+                            <input type="hidden" form="expense-form-{{ $expense->id }}" name="type" value="expense">
+                        @endif
+                    </td>
+                    <td class="px-4 py-2.5">
                         <input type="text" form="expense-form-{{ $expense->id }}" name="description" value="{{ $expense->description }}" class="w-full bg-transparent border-0 p-0 text-sm focus:ring-1 focus:ring-brand-600 rounded">
                     </td>
                     <td class="px-4 py-2.5">
@@ -131,32 +144,40 @@
                     </td>
                     <td class="px-4 py-2.5 text-right space-x-2">
                         <button type="submit" form="expense-form-{{ $expense->id }}" class="text-brand-600 hover:underline">Simpan</button>
-                        <form method="POST" action="{{ route('admin.expenses.destroy', $expense) }}" class="inline" onsubmit="return confirm('Hapus pengeluaran ini?')">
+                        <form method="POST" action="{{ route('admin.expenses.destroy', $expense) }}" class="inline" onsubmit="return confirm('Hapus transaksi ini?')">
                             @csrf @method('DELETE')
                             <button class="text-red-500 hover:underline">Hapus</button>
                         </form>
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="5" class="px-4 py-6 text-center text-slate-400">Belum ada pengeluaran dicatat bulan ini.</td></tr>
+                <tr><td colspan="6" class="px-4 py-6 text-center text-slate-400">Belum ada transaksi manual dicatat bulan ini.</td></tr>
             @endforelse
         </tbody>
     </table>
 </div>
 
 <div class="bg-white rounded-xl border border-slate-200 p-5 max-w-lg">
-    <p class="text-sm font-medium text-slate-700 mb-3">Catat Pengeluaran Baru</p>
+    <p class="text-sm font-medium text-slate-700 mb-3">Catat Transaksi Baru</p>
     <form method="POST" action="{{ route('admin.expenses.store') }}" class="space-y-3">
         @csrf
         <input type="hidden" name="period_month" value="{{ $month }}">
         <input type="hidden" name="period_year" value="{{ $year }}">
         <div>
             <label class="block text-sm text-slate-600 mb-1.5">Kategori Kas</label>
-            <select name="category" required class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm">
+            <select name="category" id="expenseCategorySelect" onchange="document.getElementById('expenseTypeWrap').classList.toggle('hidden', this.value !== 'security')" required class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm">
                 <option value="general">Kas IPL (Umum)</option>
                 <option value="security">Security</option>
             </select>
             @error('category') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+            <p class="text-xs text-slate-400 mt-1">Kas IPL (Umum): pemasukan otomatis dari pembayaran warga, di sini cuma buat catat pengeluaran. Security: pemasukan & pengeluaran dicatat manual semua.</p>
+        </div>
+        <div id="expenseTypeWrap" class="hidden">
+            <label class="block text-sm text-slate-600 mb-1.5">Jenis Transaksi</label>
+            <select name="type" class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm">
+                <option value="income">Masuk (Pemasukan)</option>
+                <option value="expense">Keluar (Pengeluaran)</option>
+            </select>
         </div>
         <div>
             <label class="block text-sm text-slate-600 mb-1.5">Tanggal</label>
@@ -176,4 +197,5 @@
         <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white text-sm px-4 py-2.5 rounded-lg w-full sm:w-auto">Simpan Pengeluaran</button>
     </form>
 </div>
+@endif
 @endsection

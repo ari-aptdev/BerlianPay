@@ -3,9 +3,11 @@
 @section('content')
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
     <h2 class="text-lg font-medium text-slate-900">Akun warga</h2>
-    <a href="{{ route('admin.residents.create') }}" class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm px-4 py-2 rounded-lg w-full sm:w-auto">
-        <i class="ti ti-plus"></i> Buat akun warga
-    </a>
+    @if (auth()->user()->canAccess('residents', 'edit'))
+        <a href="{{ route('admin.residents.create') }}" class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm px-4 py-2 rounded-lg w-full sm:w-auto">
+            <i class="ti ti-plus"></i> Buat akun warga
+        </a>
+    @endif
 </div>
 
 <div class="bg-white rounded-xl border border-slate-200 overflow-x-auto">
@@ -35,20 +37,33 @@
                         @endif
                     </td>
                     <td class="px-4 py-2.5 text-right space-x-2">
-                        @if (! $resident->is_active && $resident->houses->isEmpty())
-                            <a href="{{ route('admin.residents.approve-form', $resident) }}" class="text-brand-600 hover:underline font-medium">Setujui</a>
+                        @if (auth()->user()->canAccess('residents', 'edit'))
+                            @if (! $resident->is_active && $resident->houses->isEmpty())
+                                <a href="{{ route('admin.residents.approve-form', $resident) }}" class="text-brand-600 hover:underline font-medium">Setujui</a>
+                            @else
+                                <form method="POST" action="{{ route('admin.residents.toggle-active', $resident) }}" class="inline">
+                                    @csrf @method('PATCH')
+                                    <button class="text-brand-600 hover:underline">{{ $resident->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</button>
+                                </form>
+                            @endif
+                            <button type="button" onclick="document.getElementById('reset-pw-{{ $resident->id }}').classList.toggle('hidden')" class="text-slate-500 hover:underline">Reset password</button>
                         @else
-                            <form method="POST" action="{{ route('admin.residents.toggle-active', $resident) }}" class="inline">
-                                @csrf @method('PATCH')
-                                <button class="text-brand-600 hover:underline">{{ $resident->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</button>
-                            </form>
+                            <span class="text-slate-300 text-xs">Lihat saja</span>
                         @endif
-                        <form method="POST" action="{{ route('admin.residents.reset-password', $resident) }}" class="inline" onsubmit="return confirm('Reset password warga ini?')">
+                    </td>
+                </tr>
+                @if (auth()->user()->canAccess('residents', 'edit'))
+                <tr id="reset-pw-{{ $resident->id }}" class="hidden border-t border-slate-100 bg-slate-50">
+                    <td colspan="5" class="px-4 py-3">
+                        <form method="POST" action="{{ route('admin.residents.reset-password', $resident) }}" class="flex flex-wrap items-center gap-2">
                             @csrf @method('PATCH')
-                            <button class="text-slate-500 hover:underline">Reset password</button>
+                            <label class="text-xs text-slate-500">Password baru buat {{ $resident->name }}:</label>
+                            <input type="text" name="new_password" minlength="6" required placeholder="Minimal 6 karakter" class="rounded-lg border border-slate-200 px-3 py-1.5 text-sm">
+                            <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white text-xs px-3 py-1.5 rounded-lg">Simpan Password</button>
                         </form>
                     </td>
                 </tr>
+                @endif
             @empty
                 <tr><td colspan="5" class="px-4 py-6 text-center text-slate-400">Belum ada akun warga.</td></tr>
             @endforelse

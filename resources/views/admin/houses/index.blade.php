@@ -3,9 +3,11 @@
 @section('content')
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
     <h2 class="text-lg font-medium text-slate-900">Data warga & rumah</h2>
-    <a href="{{ route('admin.houses.create') }}" class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm px-4 py-2 rounded-lg w-full sm:w-auto">
-        <i class="ti ti-plus"></i> Tambah rumah
-    </a>
+    @if (auth()->user()->canAccess('houses', 'edit'))
+        <a href="{{ route('admin.houses.create') }}" class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm px-4 py-2 rounded-lg w-full sm:w-auto">
+            <i class="ti ti-plus"></i> Tambah rumah
+        </a>
+    @endif
 </div>
 
 <form method="GET" class="mb-4">
@@ -48,11 +50,15 @@
                         @endif
                     </td>
                     <td class="px-4 py-2.5 text-right space-x-2">
-                        <a href="{{ route('admin.houses.edit', $house) }}" class="text-brand-600 hover:underline">Edit</a>
-                        <form method="POST" action="{{ route('admin.houses.destroy', $house) }}" class="inline" onsubmit="return confirm('Nonaktifkan rumah ini?')">
-                            @csrf @method('DELETE')
-                            <button class="text-red-500 hover:underline">Nonaktifkan</button>
-                        </form>
+                        @if (auth()->user()->canAccess('houses', 'edit'))
+                            <a href="{{ route('admin.houses.edit', $house) }}" class="text-brand-600 hover:underline">Edit</a>
+                            <form method="POST" action="{{ route('admin.houses.destroy', $house) }}" class="inline" onsubmit="return confirm('Nonaktifkan rumah ini?')">
+                                @csrf @method('DELETE')
+                                <button class="text-red-500 hover:underline">Nonaktifkan</button>
+                            </form>
+                        @else
+                            <span class="text-slate-300 text-xs">Lihat saja</span>
+                        @endif
                     </td>
                 </tr>
             @empty

@@ -21,9 +21,16 @@ class ExpenseController extends Controller
             'period_year' => ['required', 'integer', 'min:2020', 'max:2100'],
             'expense_date' => ['required', 'date'],
             'category' => ['required', Rule::in(['general', 'security'])],
+            'type' => ['required', Rule::in(['income', 'expense'])],
             'amount' => ['required', 'integer', 'min:0'],
             'description' => ['required', 'string', 'max:255'],
         ]);
+
+        // Kas IPL (general) pemasukannya tetap otomatis dari pembayaran warga,
+        // jadi entry manual kategori general dipaksa selalu 'expense'.
+        if ($validated['category'] === 'general') {
+            $validated['type'] = 'expense';
+        }
 
         $validated['recorded_by_admin_id'] = $request->user()->id;
 
@@ -32,7 +39,7 @@ class ExpenseController extends Controller
         return redirect()->route('admin.reports.index', [
             'month' => $validated['period_month'],
             'year' => $validated['period_year'],
-        ])->with('success', 'Pengeluaran berhasil dicatat.');
+        ])->with('success', 'Transaksi berhasil dicatat.');
     }
 
     public function update(Request $request, Expense $expense)
@@ -40,16 +47,21 @@ class ExpenseController extends Controller
         $validated = $request->validate([
             'expense_date' => ['required', 'date'],
             'category' => ['required', Rule::in(['general', 'security'])],
+            'type' => ['required', Rule::in(['income', 'expense'])],
             'amount' => ['required', 'integer', 'min:0'],
             'description' => ['required', 'string', 'max:255'],
         ]);
+
+        if ($validated['category'] === 'general') {
+            $validated['type'] = 'expense';
+        }
 
         $expense->update($validated);
 
         return redirect()->route('admin.reports.index', [
             'month' => $expense->period_month,
             'year' => $expense->period_year,
-        ])->with('success', 'Pengeluaran berhasil diperbarui.');
+        ])->with('success', 'Transaksi berhasil diperbarui.');
     }
 
     public function destroy(Request $request, Expense $expense)
@@ -60,6 +72,6 @@ class ExpenseController extends Controller
         $expense->delete();
 
         return redirect()->route('admin.reports.index', ['month' => $month, 'year' => $year])
-            ->with('success', 'Pengeluaran dihapus.');
+            ->with('success', 'Transaksi dihapus.');
     }
 }

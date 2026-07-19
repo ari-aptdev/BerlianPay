@@ -3,9 +3,11 @@
 @section('content')
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
     <h2 class="text-lg font-medium text-slate-900">Pencatatan pembayaran</h2>
-    <a href="{{ route('admin.payments.create') }}" class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm px-4 py-2 rounded-lg w-full sm:w-auto">
-        <i class="ti ti-plus"></i> Catat pembayaran
-    </a>
+    @if (auth()->user()->canAccess('payments', 'edit'))
+        <a href="{{ route('admin.payments.create') }}" class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm px-4 py-2 rounded-lg w-full sm:w-auto">
+            <i class="ti ti-plus"></i> Catat pembayaran
+        </a>
+    @endif
 </div>
 
 <form method="GET" class="flex flex-wrap gap-3 mb-4">
@@ -70,11 +72,15 @@
                         @endif
                     </td>
                     <td class="px-4 py-2.5 text-right space-x-2">
-                        <a href="{{ route('admin.payments.edit', $payment) }}" class="text-brand-600 hover:underline">Edit</a>
-                        <form method="POST" action="{{ route('admin.payments.destroy', $payment) }}" class="inline" onsubmit="return confirm('Hapus data pembayaran ini?')">
-                            @csrf @method('DELETE')
-                            <button class="text-red-500 hover:underline">Hapus</button>
-                        </form>
+                        @if (auth()->user()->canAccess('payments', 'edit'))
+                            <a href="{{ route('admin.payments.edit', $payment) }}" class="text-brand-600 hover:underline">Edit</a>
+                            <form method="POST" action="{{ route('admin.payments.destroy', $payment) }}" class="inline" onsubmit="return confirm('Hapus data pembayaran ini?')">
+                                @csrf @method('DELETE')
+                                <button class="text-red-500 hover:underline">Hapus</button>
+                            </form>
+                        @else
+                            <span class="text-slate-300 text-xs">Lihat saja</span>
+                        @endif
                     </td>
                 </tr>
             @empty

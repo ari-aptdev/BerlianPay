@@ -7,80 +7,63 @@ use App\Models\Payment;
 use Carbon\Carbon;
 
 /**
- * Buku Kas: gabungan pemasukan dan pengeluaran, diurutkan kronologis,
- * dengan saldo berjalan (running balance) per baris.
+ * Buku Kas dengan saldo berjalan (running balance).
+ *
+ * - Kategori 'general' (Kas IPL): pemasukan OTOMATIS dari pembayaran IPL warga
+ *   yang lunas (nominal penuh), pengeluaran dicatat manual oleh admin.
+ * - Kategori 'security': SEPENUHNYA manual — pemasukan maupun pengeluaran
+ *   dicatat sendiri oleh admin/pengurus, TIDAK diambil otomatis dari
+ *   pembayaran IPL warga sama sekali.
  *
  * Saldo awal bulan = saldo akhir dari SEMUA transaksi sebelum bulan ini.
  * Tiap baris: saldo_akhir = saldo_sebelumnya + masuk - keluar.
- *
- * Ada 2 kategori kas yang dipisah (kayak "dana terikat" di pembukuan):
- * - 'general' : Iuran Kas + Kebersihan + Rukem + biaya pendaftaran Rukem
- * - 'security': KHUSUS irisan "Iuran Keamanan" dari tiap pembayaran IPL warga
- * Pengeluaran (Expense) juga punya kategori sendiri, admin yang pilih pas nyatet.
  */
 class CashLedger
 {
-    /**
-     * Berapa bagian dari satu Payment yang masuk ke kategori tertentu.
-     */
-    protected static function incomePortion(Payment $payment, string $category): int
-    {
-        if ($payment->isRegistrationFee()) {
-            return $category === 'general' ? $payment->amount : 0;
-        }
-
-        $breakdown = $payment->resolvedBreakdown();
-        $keamanan = $breakdown['Iuran Keamanan'] ?? 0;
-
-        if ($category === 'security') {
-            return $keamanan;
-        }
-
-        return array_sum($breakdown) - $keamanan;
-    }
-
     public static function build(int $month, int $year, string $category = 'general'): array
     {
         $periodStart = Carbon::create($year, $month, 1)->startOfDay();
         $periodEnd = (clone $periodStart)->endOfMonth()->endOfDay();
 
-        $paidBefore = Payment::where('status', 'paid')->where('paid_at', '<', $periodStart)->get();
-        $incomeBefore = $paidBefore->sum(fn ($p) => self::incomePortion($p, $category));
+        if ($category === 'general') {
+            $incomeBefore = Payment::where('status', 'paid')->where('paid_at', '<', $periodStart)->sum('amount');
+        } else {
+            $incomeBefore = Expense::where('category', 'security')->where('type', 'income')
+                ->where('expense_date', '<', $periodStart->toDateString())->sum('amount');
+        }
 
-        $expenseBefore = Expense::where('category', $category)
+        $expenseBefore = Expense::where('category', $category)->where('type', 'expense')
             ->where('expense_date', '<', $periodStart->toDateString())
             ->sum('amount');
 
         $startingBalance = $incomeBefore - $expenseBefore;
 
-        // Transaksi bulan ini, digabung & diurutkan kronologis
-        $paidThisMonth = Payment::with('house')
-            ->where('status', 'paid')
-            ->whereBetween('paid_at', [$periodStart, $periodEnd])
-            ->get();
-
-        $incomeEntries = $paidThisMonth
-            ->map(function ($p) use ($category) {
-                $amount = self::incomePortion($p, $category);
-                if ($amount <= 0) {
-                    return null;
-                }
-
-                $label = $category === 'security'
-                    ? $p->house->fullLabel().' - Iuran Keamanan ('.$p->periodLabel().')'
-                    : $p->house->fullLabel().' - '.$p->displayLabel();
-
-                return [
+        // ---- Transaksi bulan ini ----
+        if ($category === 'general') {
+            $incomeEntries = Payment::with('house')
+                ->where('status', 'paid')
+                ->whereBetween('paid_at', [$periodStart, $periodEnd])
+                ->get()
+                ->map(fn ($p) => [
                     'date' => $p->paid_at,
-                    'description' => $label,
-                    'masuk' => $amount,
+                    'description' => $p->house->fullLabel().' - '.$p->displayLabel(),
+                    'masuk' => $p->amount,
                     'keluar' => 0,
-                ];
-            })
-            ->filter()
-            ->values();
+                ]);
+        } else {
+            $incomeEntries = Expense::where('category', 'security')->where('type', 'income')
+                ->whereBetween('expense_date', [$periodStart->toDateString(), $periodEnd->toDateString()])
+                ->get()
+                ->map(fn ($e) => [
+                    'date' => $e->expense_date ?? $e->created_at,
+                    'description' => $e->description,
+                    'masuk' => $e->amount,
+                    'keluar' => 0,
+                    'model' => $e,
+                ]);
+        }
 
-        $expenseEntries = Expense::where('category', $category)
+        $expenseEntries = Expense::where('category', $category)->where('type', 'expense')
             ->whereBetween('expense_date', [$periodStart->toDateString(), $periodEnd->toDateString()])
             ->get()
             ->map(fn ($e) => [

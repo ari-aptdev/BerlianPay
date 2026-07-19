@@ -24,7 +24,7 @@
             <p class="text-xs text-slate-400 mt-1">Muncul di export laporan PDF. Format Excel (.xlsx) gak bisa nampilin logo (keterbatasan format), tapi nama perumahan tetap tercantum.</p>
         </div>
 
-        <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white text-sm px-4 py-2.5 rounded-lg w-full sm:w-auto">Simpan Identitas</button>
+        @if (auth()->user()->canAccess('settings', 'edit'))<button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white text-sm px-4 py-2.5 rounded-lg w-full sm:w-auto">Simpan Identitas</button>@endif
     </form>
 </div>
 
@@ -46,7 +46,7 @@
         <input type="hidden" name="email_reminder_enabled" value="{{ $settings['email_reminder_enabled'] }}">
         <input type="hidden" name="wa_reminder_enabled" value="{{ $settings['wa_reminder_enabled'] }}">
 
-        <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white text-sm px-4 py-2.5 rounded-lg">Simpan durasi sesi</button>
+        @if (auth()->user()->canAccess('settings', 'edit'))<button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white text-sm px-4 py-2.5 rounded-lg">Simpan durasi sesi</button>@endif
     </form>
 </div>
 
@@ -89,7 +89,7 @@
 
         <input type="hidden" name="session_timeout_minutes" value="{{ $settings['session_timeout_minutes'] }}">
 
-        <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white text-sm px-4 py-2.5 rounded-lg">Simpan pengaturan reminder</button>
+        @if (auth()->user()->canAccess('settings', 'edit'))<button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white text-sm px-4 py-2.5 rounded-lg">Simpan pengaturan reminder</button>@endif
     </form>
 </div>
 @endsection

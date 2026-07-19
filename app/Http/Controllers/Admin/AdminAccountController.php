@@ -33,7 +33,7 @@ class AdminAccountController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8'],
+            'password' => ['required', 'string', 'min:6'],
             'admin_access_type' => ['required', Rule::in(['full', 'read_only', 'custom'])],
             'permissions' => ['nullable', 'array'],
         ]);

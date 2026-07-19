@@ -12,6 +12,7 @@ class Expense extends Model
         'period_year',
         'expense_date',
         'category',
+        'type',
         'amount',
         'description',
         'recorded_by_admin_id',
@@ -28,5 +29,10 @@ class Expense extends Model
     public function recordedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'recorded_by_admin_id');
+    }
+
+    public function isIncome(): bool
+    {
+        return $this->type === 'income';
     }
 }

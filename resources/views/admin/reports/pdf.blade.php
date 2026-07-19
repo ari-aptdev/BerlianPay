@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <style>
         body { font-family: sans-serif; font-size: 12px; color: #1e293b; }
-        .header { display: table; width: 100%; margin-bottom: 12px; }
-        .header-logo { display: table-cell; width: 60px; vertical-align: middle; }
-        .header-logo img { width: 50px; height: 50px; object-fit: contain; }
-        .header-text { display: table-cell; vertical-align: middle; padding-left: 10px; }
+        .header { display: table; width: 100%; margin-bottom: 16px; }
+        .header-text { display: table-cell; vertical-align: middle; width: 80%; }
+        .header-logo { display: table-cell; width: 20%; vertical-align: middle; text-align: right; }
+        .header-logo img { width: 42px; height: 42px; object-fit: contain; }
         h1 { font-size: 16px; margin: 0 0 2px; }
         p.sub { color: #64748b; margin: 0; }
         h2 { font-size: 14px; margin: 22px 0 8px; padding-top: 10px; border-top: 1px solid #e2e8f0; }
@@ -25,13 +25,13 @@
 </head>
 <body>
     <div class="header">
-        @if ($logoAbsolutePath)
-            <div class="header-logo"><img src="{{ $logoAbsolutePath }}" alt="Logo"></div>
-        @endif
         <div class="header-text">
             <h1>{{ $perumahanNama }} - Laporan Kas</h1>
             <p class="sub">Periode: {{ $bulanLabel }} {{ $year }}</p>
         </div>
+        @if ($logoAbsolutePath)
+            <div class="header-logo"><img src="{{ $logoAbsolutePath }}" alt="Logo"></div>
+        @endif
     </div>
 
     @foreach (['general' => ['title' => 'Kas IPL (Umum)', 'ledger' => $general], 'security' => ['title' => 'Kas Security', 'ledger' => $security]] as $key => $section)

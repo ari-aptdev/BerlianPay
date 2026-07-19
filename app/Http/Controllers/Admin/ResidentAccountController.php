@@ -11,7 +11,6 @@ use App\Models\User;
 use App\Support\IplPricing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class ResidentAccountController extends Controller
@@ -149,15 +148,18 @@ class ResidentAccountController extends Controller
     }
 
     /**
-     * Reset password warga ke password acak, admin akan info manual ke warga.
+     * Reset password warga - admin/pengurus yang nentuin sendiri password barunya.
      */
-    public function resetPassword(User $resident)
+    public function resetPassword(Request $request, User $resident)
     {
         abort_unless($resident->isWarga(), 404);
 
-        $newPassword = Str::random(8);
-        $resident->update(['password' => Hash::make($newPassword)]);
+        $validated = $request->validate([
+            'new_password' => ['required', 'string', 'min:6'],
+        ]);
 
-        return back()->with('success', "Password direset. Password sementara: {$newPassword}");
+        $resident->update(['password' => Hash::make($validated['new_password'])]);
+
+        return back()->with('success', "Password {$resident->name} berhasil diubah.");
     }
 }
