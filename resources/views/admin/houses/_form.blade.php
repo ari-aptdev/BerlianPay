@@ -3,8 +3,8 @@
 
 <div class="grid grid-cols-2 gap-4 mb-4">
     <div>
-        <label class="block text-sm text-slate-600 mb-1.5">Blok</label>
-        <input type="text" name="block" value="{{ old('block', $house->block ?? '') }}" required
+        <label class="block text-sm text-slate-600 mb-1.5">Blok <span class="text-slate-400 font-normal">(opsional)</span></label>
+        <input type="text" name="block" value="{{ old('block', $house->block ?? '') }}" placeholder="Kosongkan kalau gak ada blok"
             class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-600/20">
         @error('block') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
     </div>

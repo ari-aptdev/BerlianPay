@@ -52,6 +52,10 @@ class House extends Model
 
     public function fullLabel(): string
     {
+        if (empty($this->block)) {
+            return "No. {$this->house_number}";
+        }
+
         return "Blok {$this->block}-{$this->house_number}";
     }
 }

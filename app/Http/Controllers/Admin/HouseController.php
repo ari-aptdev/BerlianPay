@@ -34,7 +34,11 @@ class HouseController extends Controller
 
     public function store(StoreHouseRequest $request)
     {
-        House::create($request->validated());
+        $data = $request->validated();
+        $data['block'] = $data['block'] !== null ? strtoupper($data['block']) : null;
+        $data['block'] = $data['block'] === '' ? null : $data['block'];
+
+        House::create($data);
 
         return redirect()->route('admin.houses.index')->with('success', 'Data rumah berhasil ditambahkan.');
     }
@@ -46,7 +50,11 @@ class HouseController extends Controller
 
     public function update(StoreHouseRequest $request, House $house)
     {
-        $house->update($request->validated());
+        $data = $request->validated();
+        $data['block'] = $data['block'] !== null ? strtoupper($data['block']) : null;
+        $data['block'] = $data['block'] === '' ? null : $data['block'];
+
+        $house->update($data);
 
         return redirect()->route('admin.houses.index')->with('success', 'Data rumah berhasil diperbarui.');
     }

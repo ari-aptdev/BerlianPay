@@ -73,8 +73,8 @@
             </div>
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-sm text-slate-600 mb-1.5">Blok</label>
-                    <input type="text" name="block" value="{{ old('block') }}" placeholder="Mis. B" maxlength="5" required
+                    <label class="block text-sm text-slate-600 mb-1.5">Blok <span class="text-slate-400 font-normal">(opsional)</span></label>
+                    <input type="text" name="block" value="{{ old('block') }}" placeholder="Kosongkan kalau gak ada blok" maxlength="5"
                         class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-600/20 focus:border-brand-600">
                 </div>
                 <div>

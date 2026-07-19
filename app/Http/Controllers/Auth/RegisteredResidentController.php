@@ -22,7 +22,7 @@ class RegisteredResidentController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:20'],
             'nik' => ['required', 'digits:16', 'unique:users,nik'],
-            'block' => ['required', 'string', 'max:5', 'regex:/^[A-Za-z]+$/'],
+            'block' => ['nullable', 'string', 'max:5', 'regex:/^[A-Za-z]+$/'],
             'house_number' => ['required', 'integer', 'min:1', 'max:99'],
             'wants_rukem' => ['nullable', 'boolean'],
         ], [
@@ -45,7 +45,7 @@ class RegisteredResidentController extends Controller
             'password' => Hash::make($password),
             'role' => 'warga',
             'is_active' => false, // wajib diaktifkan admin dulu
-            'pending_block' => strtoupper($validated['block']),
+            'pending_block' => $validated['block'] ? strtoupper($validated['block']) : null,
             'pending_house_number' => str_pad((string) $validated['house_number'], 2, '0', STR_PAD_LEFT),
             'pending_wants_rukem' => $request->boolean('wants_rukem'),
         ]);

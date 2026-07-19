@@ -15,14 +15,15 @@ class StoreHouseRequest extends FormRequest
     public function rules(): array
     {
         $houseId = $this->route('house')?->id;
+        $block = $this->block ?: null;
 
         return [
-            'block' => ['required', 'string', 'max:10'],
+            'block' => ['nullable', 'string', 'max:10'],
             'house_number' => [
                 'required',
                 'string',
                 'max:20',
-                Rule::unique('houses')->where(fn ($q) => $q->where('block', $this->block))->ignore($houseId),
+                Rule::unique('houses')->where(fn ($q) => $block ? $q->where('block', $block) : $q->whereNull('block'))->ignore($houseId),
             ],
             'owner_name' => ['required', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:20'],

@@ -83,12 +83,12 @@ class ResidentAccountController extends Controller
         abort_unless($resident->isWarga(), 404);
 
         $validated = $request->validate([
-            'block' => ['required', 'string', 'max:5'],
+            'block' => ['nullable', 'string', 'max:5'],
             'house_number' => ['required', 'string', 'max:20'],
             'ipl_status' => ['required', Rule::in(['rukem', 'non_rukem'])],
         ]);
 
-        $block = strtoupper($validated['block']);
+        $block = $validated['block'] ? strtoupper($validated['block']) : null;
         $houseNumber = str_pad($validated['house_number'], 2, '0', STR_PAD_LEFT);
 
         $house = House::firstOrNew(['block' => $block, 'house_number' => $houseNumber]);
