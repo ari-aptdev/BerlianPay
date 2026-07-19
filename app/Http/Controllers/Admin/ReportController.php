@@ -45,6 +45,27 @@ class ReportController extends Controller
         return view('admin.reports.index', array_merge($ledgers, compact('month', 'year')));
     }
 
+    /**
+     * Logo cuma disisipkan kalau extension GD aktif (dibutuhkan dompdf buat proses gambar)
+     * DAN file-nya beneran ada. Kalau salah satu gak terpenuhi, logo di-skip diam-diam
+     * daripada bikin export PDF gagal total.
+     */
+    public static function resolveLogoPath(): ?string
+    {
+        if (! extension_loaded('gd')) {
+            return null;
+        }
+
+        $logoPath = Setting::get('perumahan_logo_path');
+        if (! $logoPath) {
+            return null;
+        }
+
+        $absolutePath = storage_path('app/public/'.$logoPath);
+
+        return file_exists($absolutePath) ? $absolutePath : null;
+    }
+
     public function exportPdf(Request $request)
     {
         $month = (int) ($request->month ?? now()->month);
@@ -52,16 +73,12 @@ class ReportController extends Controller
 
         $ledgers = $this->buildBoth($month, $year);
 
-        $perumahanNama = Setting::get('perumahan_nama', 'BerlianPay');
-        $logoPath = Setting::get('perumahan_logo_path');
-        $logoAbsolutePath = $logoPath ? storage_path('app/public/'.$logoPath) : null;
-
         $pdf = Pdf::loadView('admin.reports.pdf', array_merge($ledgers, [
             'month' => $month,
             'year' => $year,
             'bulanLabel' => self::bulanLabel($month),
-            'perumahanNama' => $perumahanNama,
-            'logoAbsolutePath' => ($logoAbsolutePath && file_exists($logoAbsolutePath)) ? $logoAbsolutePath : null,
+            'perumahanNama' => Setting::get('perumahan_nama', 'BerlianPay'),
+            'logoAbsolutePath' => self::resolveLogoPath(),
         ]));
 
         return $pdf->download("laporan-kas-{$year}-{$month}.pdf");

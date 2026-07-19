@@ -42,16 +42,12 @@ class ReportController extends Controller
 
         $ledgers = $this->buildBoth($month, $year);
 
-        $perumahanNama = Setting::get('perumahan_nama', 'BerlianPay');
-        $logoPath = Setting::get('perumahan_logo_path');
-        $logoAbsolutePath = $logoPath ? storage_path('app/public/'.$logoPath) : null;
-
         $pdf = Pdf::loadView('admin.reports.pdf', array_merge($ledgers, [
             'month' => $month,
             'year' => $year,
             'bulanLabel' => AdminReportController::bulanLabel($month),
-            'perumahanNama' => $perumahanNama,
-            'logoAbsolutePath' => ($logoAbsolutePath && file_exists($logoAbsolutePath)) ? $logoAbsolutePath : null,
+            'perumahanNama' => Setting::get('perumahan_nama', 'BerlianPay'),
+            'logoAbsolutePath' => AdminReportController::resolveLogoPath(),
         ]));
 
         return $pdf->download("laporan-kas-{$year}-{$month}.pdf");
