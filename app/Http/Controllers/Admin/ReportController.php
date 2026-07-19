@@ -99,10 +99,10 @@ class ReportController extends Controller
         $perumahanNama = Setting::get('perumahan_nama', 'BerlianPay');
 
         $rows = [];
-        $rows[] = [$perumahanNama.' - Laporan Kas'];
+        $rows[] = [$perumahanNama.' - Laporan Keuangan Kas RT 003/RW 023'];
         $rows[] = ['Periode: '.self::bulanLabel($month).' '.$year];
 
-        foreach (['general' => 'KAS IPL (UMUM)', 'security' => 'KAS SECURITY'] as $key => $sectionTitle) {
+        foreach (['general' => 'LAPORAN KEUANGAN IPL', 'security' => 'LAPORAN KEUANGAN KAS SECURITY'] as $key => $sectionTitle) {
             $ledger = $ledgers[$key];
             $rows[] = [];
             $rows[] = [$sectionTitle];
@@ -123,7 +123,7 @@ class ReportController extends Controller
             $rows[] = [];
             $rows[] = ['Total Masuk', '', $ledger['totalMasuk']];
             $rows[] = ['Total Keluar', '', '', $ledger['totalKeluar']];
-            $rows[] = ["Saldo Akhir {$sectionTitle}", '', '', '', $ledger['endingBalance']];
+            $rows[] = ['Saldo Akhir', '', '', '', $ledger['endingBalance']];
         }
 
         $content = SimpleXlsxWriter::generate($rows);

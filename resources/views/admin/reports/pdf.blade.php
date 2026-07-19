@@ -26,7 +26,7 @@
 <body>
     <div class="header">
         <div class="header-text">
-            <h1>{{ $perumahanNama }} - Laporan Kas</h1>
+            <h1>{{ $perumahanNama }} - Laporan Keuangan Kas RT 003/RW 023</h1>
             <p class="sub">Periode: {{ $bulanLabel }} {{ $year }}</p>
         </div>
         @if ($logoAbsolutePath)
@@ -34,7 +34,7 @@
         @endif
     </div>
 
-    @foreach (['general' => ['title' => 'Kas IPL (Umum)', 'ledger' => $general], 'security' => ['title' => 'Kas Security', 'ledger' => $security]] as $key => $section)
+    @foreach (['general' => ['title' => 'Laporan Keuangan IPL', 'ledger' => $general], 'security' => ['title' => 'Laporan Keuangan Kas Security', 'ledger' => $security]] as $key => $section)
         @php $ledger = $section['ledger']; @endphp
         <h2 class="{{ $loop->first ? 'first' : '' }}">{{ $section['title'] }}</h2>
         <table class="data">
