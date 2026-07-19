@@ -47,9 +47,7 @@
 
 <div class="w-full max-w-sm">
     <div class="flex flex-col items-center mb-6">
-        <div class="w-12 h-12 rounded-xl bg-brand-600 flex items-center justify-center text-white mb-3">
-            <i class="ti ti-diamond text-2xl"></i>
-        </div>
+        <img src="/icons/logo-mark.png" alt="BerlianPay" class="w-14 h-14 rounded-xl object-contain mb-3">
         <h1 class="text-lg font-medium text-slate-900">Daftar Akun Warga</h1>
         <p class="text-sm text-slate-500 text-center">Isi data di bawah, akun kamu perlu diaktifkan admin dulu sebelum bisa login.</p>
     </div>

@@ -65,9 +65,7 @@
 <header class="bg-white border-b border-slate-200 sticky top-0 z-10">
     <div class="max-w-md mx-auto px-3 sm:px-4 h-14 flex items-center justify-between gap-2">
         <div class="flex items-center gap-2 min-w-0">
-            <div class="w-7 h-7 rounded-md bg-brand-600 flex items-center justify-center text-white flex-shrink-0">
-                <i class="ti ti-diamond text-sm"></i>
-            </div>
+            <img src="/icons/logo-mark.png" alt="BerlianPay" class="w-7 h-7 rounded-md object-contain flex-shrink-0">
             <span class="font-medium text-sm text-slate-900 truncate">BerlianPay</span>
         </div>
         <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">

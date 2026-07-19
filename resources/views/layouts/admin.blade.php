@@ -77,9 +77,7 @@
 <div class="flex min-h-screen">
     <aside class="w-64 bg-white border-r border-slate-200 flex-shrink-0 hidden md:flex md:flex-col">
         <div class="h-16 flex items-center gap-2 px-5 border-b border-slate-100">
-            <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-white">
-                <i class="ti ti-diamond text-lg"></i>
-            </div>
+            <img src="/icons/logo-mark.png" alt="BerlianPay" class="w-8 h-8 rounded-lg object-contain">
             <span class="font-semibold text-slate-900">BerlianPay</span>
         </div>
         <nav class="flex-1 px-3 py-4 space-y-1">
